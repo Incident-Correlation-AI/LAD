@@ -1,0 +1,24 @@
+{
+  "incident_id": "inc_01J8Z5K0R7",
+  "schema_version": "1.0",
+  "status": "open",
+  "severity": "high",
+  "affected_entities": [
+    {
+      "host": "host-alpha"
+    }
+  ],
+  "anomaly_score": 4.2,
+  "detector": "statistical_baseline",
+  "evidence": {
+    "supporting_event_ids": [
+      "evt_a"
+    ],
+    "redacted_refs": []
+  },
+  "hypotheses": [],
+  "diagnostic_checks": [],
+  "created_at": "2026-10-17T10:16:00Z",
+  "updated_at": "2026-10-17T10:16:00Z",
+  "audit": []
+}

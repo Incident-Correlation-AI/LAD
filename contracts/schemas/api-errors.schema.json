@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/contracts/schemas/api-errors.schema.json",
+  "title": "ApiError",
+  "description": "Shared error shape returned by every endpoint on failure. Clients handle errors uniformly.",
+  "type": "object",
+  "required": ["error"],
+  "additionalProperties": false,
+  "properties": {
+    "error": {
+      "type": "object",
+      "required": ["code", "message"],
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "type": "string",
+          "enum": [
+            "validation_failed",
+            "unauthorized",
+            "forbidden",
+            "not_found",
+            "payload_too_large",
+            "throttled",
+            "internal_error",
+            "dependency_unavailable"
+          ],
+          "description": "Machine-readable, stable. Clients branch on this."
+        },
+        "message": {
+          "type": "string",
+          "maxLength": 1024,
+          "description": "Human-readable summary. No secrets, no ARNs, no stack traces."
+        },
+        "details": {
+          "type": "array",
+          "description": "Optional structured breakdown. Used mainly by batch ingestion.",
+          "items": {
+            "type": "object",
+            "required": ["field", "reason"],
+            "additionalProperties": false,
+            "properties": {
+              "index": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Position of the offending event in the submitted batch. Always-reliable locator."
+              },
+              "event_id": {
+                "type": ["string", "null"],
+                "maxLength": 128,
+                "description": "Offending event's ID when available. null when the event_id itself is missing or invalid."
+              },
+              "field": {
+                "type": "string",
+                "maxLength": 256
+              },
+              "reason": {
+                "type": "string",
+                "maxLength": 1024
+              }
+            }
+          }
+        },
+        "request_id": {
+          "type": ["string", "null"],
+          "maxLength": 128,
+          "description": "Debugging correlation. Never payload contents."
+        }
+      }
+    }
+  }
+}

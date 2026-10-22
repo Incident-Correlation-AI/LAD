@@ -1,0 +1,417 @@
+openapi: 3.1.0
+info:
+  title: Log Anomaly Detector API
+  version: 1.0.0
+  description: |
+    Canonical API contract. Exactly six endpoints are supported — anything not
+    documented here is undocumented behavior and must not be implemented.
+
+    Authentication uses two distinct bearer identities:
+    - `collectorAuth`: may ONLY submit event batches.
+    - `adminAuth`: may read incidents and change lifecycle state.
+
+    Retryability is derived from the HTTP status code: `408`, `429`, and `5xx`
+    are retryable; all other `4xx` are not.
+servers:
+  - url: http://localhost:8080
+    description: Local lane
+tags:
+  - name: ingestion
+    description: Collector-only event submission
+  - name: health
+    description: Unauthenticated liveness
+  - name: incidents
+    description: Admin-only incident reads and lifecycle actions
+
+paths:
+  /api/v1/events/batch:
+    post:
+      operationId: submitEventBatch
+      tags: [ingestion]
+      summary: Submit a batch of events (collector only)
+      description: |
+        Validates and enqueues events. Returns a receipt with per-event outcomes.
+
+        **Accepted into the queue does NOT mean detection has completed.**
+        Detection is asynchronous; the dashboard must never imply an incident
+        exists at submit time.
+      security:
+        - collectorAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventBatchRequest'
+      responses:
+        '202':
+          description: |
+            Batch accepted for asynchronous processing (partial acceptance allowed).
+            Retryable: no — inspect per-event results instead.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IngestionReceipt'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '413':
+          $ref: '#/components/responses/PayloadTooLarge'
+        '422':
+          $ref: '#/components/responses/ValidationFailed'
+        '429':
+          $ref: '#/components/responses/Throttled'
+        '500':
+          $ref: '#/components/responses/ServerError'
+        '503':
+          $ref: '#/components/responses/Unavailable'
+
+  /api/v1/health:
+    get:
+      operationId: getHealth
+      tags: [health]
+      summary: Liveness check (anyone)
+      description: Returns build identity only. Must never leak secrets or internal configuration.
+      security: []
+      responses:
+        '200':
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/incidents:
+    get:
+      operationId: listIncidents
+      tags: [incidents]
+      summary: List incidents (admin only)
+      description: |
+        Cursor-based pagination. Cursors are opaque; clients must not interpret them.
+      security:
+        - adminAuth: []
+      parameters:
+        - $ref: '#/components/parameters/Cursor'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/StatusFilter'
+        - $ref: '#/components/parameters/SeverityFilter'
+        - $ref: '#/components/parameters/TimeFrom'
+        - $ref: '#/components/parameters/TimeTo'
+        - $ref: '#/components/parameters/HostFilter'
+      responses:
+        '200':
+          description: A page of incidents.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IncidentList'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/Throttled'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/incidents/{incident_id}:
+    get:
+      operationId: getIncident
+      tags: [incidents]
+      summary: Get a single incident (admin only)
+      security:
+        - adminAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '200':
+          description: The incident.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/incidents/{incident_id}/acknowledge:
+    post:
+      operationId: acknowledgeIncident
+      tags: [incidents]
+      summary: Acknowledge an incident (admin only)
+      description: |
+        Appends an audit entry (action=acknowledged). Idempotent: acknowledging an
+        already-acknowledged or resolved incident returns the current record.
+      security:
+        - adminAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '200':
+          description: Updated incident.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /api/v1/incidents/{incident_id}/resolve:
+    post:
+      operationId: resolveIncident
+      tags: [incidents]
+      summary: Resolve an incident (admin only)
+      description: |
+        Appends an audit entry (action=resolved). Resolving without acknowledging
+        first is allowed. Idempotent: resolving an already-resolved incident
+        returns the current record.
+      security:
+        - adminAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IncidentId'
+      responses:
+        '200':
+          description: Updated incident.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Incident'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+components:
+  securitySchemes:
+    collectorAuth:
+      type: http
+      scheme: bearer
+      description: Collector identity. May only call POST /api/v1/events/batch.
+    adminAuth:
+      type: http
+      scheme: bearer
+      description: Administrator identity. May read incidents and change lifecycle state.
+
+  parameters:
+    IncidentId:
+      name: incident_id
+      in: path
+      required: true
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 128
+    Cursor:
+      name: cursor
+      in: query
+      required: false
+      description: Opaque pagination cursor from a previous response.
+      schema:
+        type: string
+    Limit:
+      name: limit
+      in: query
+      required: false
+      description: Page size. Default 20, maximum 100.
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+    StatusFilter:
+      name: status
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [open, acknowledged, resolved]
+    SeverityFilter:
+      name: severity
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [low, medium, high, critical]
+    TimeFrom:
+      name: time_from
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    TimeTo:
+      name: time_to
+      in: query
+      required: false
+      schema:
+        type: string
+        format: date-time
+    HostFilter:
+      name: host
+      in: query
+      required: false
+      schema:
+        type: string
+        maxLength: 255
+
+  responses:
+    BadRequest:
+      description: |
+        Malformed request (bad JSON, missing batch wrapper). Retryable: no.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Unauthorized:
+      description: "Missing or invalid authentication. Retryable: no."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Forbidden:
+      description: |
+        Authenticated but not authorized (e.g. a collector calling an incident
+        route). Retryable: no.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    NotFound:
+      description: "Unknown incident id. Retryable: no."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    PayloadTooLarge:
+      description: |
+        Payload exceeds batch or per-field limits (batch: max 100 events or
+        256 KB). Retryable: no.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    ValidationFailed:
+      description: |
+        Whole-batch schema validation failed. Retryable: no.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Throttled:
+      description: "Rate limited. Retryable: yes, with backoff and jitter."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    ServerError:
+      description: "Unexpected server error. Retryable: yes. Includes request_id."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+    Unavailable:
+      description: |
+        A dependency (queue or storage) is unavailable. Retryable: yes, with
+        backoff and jitter.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+
+  schemas:
+    Event:
+      $ref: './schemas/event.schema.json'
+    Incident:
+      $ref: './schemas/incident.schema.json'
+    ApiError:
+      $ref: './schemas/api-errors.schema.json'
+    EventBatchRequest:
+      type: object
+      required: [events]
+      additionalProperties: false
+      properties:
+        events:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: './schemas/event.schema.json'
+    IngestionReceipt:
+      type: object
+      required: [receipt_id, accepted, rejected, results, note]
+      additionalProperties: false
+      properties:
+        receipt_id:
+          type: string
+        accepted:
+          type: integer
+          minimum: 0
+        rejected:
+          type: integer
+          minimum: 0
+        results:
+          type: array
+          items:
+            type: object
+            required: [index, status]
+            additionalProperties: false
+            properties:
+              index:
+                type: integer
+                minimum: 0
+              event_id:
+                type: [string, 'null']
+              status:
+                type: string
+                enum: [accepted, rejected]
+              reason:
+                type: string
+              detail:
+                type: string
+        note:
+          type: string
+          description: Always states that acceptance does not mean detection has completed.
+    IncidentList:
+      type: object
+      required: [items, next_cursor]
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          items:
+            $ref: './schemas/incident.schema.json'
+        next_cursor:
+          type: [string, 'null']
+    HealthResponse:
+      type: object
+      required: [status, version, time]
+      additionalProperties: false
+      properties:
+        status:
+          type: string
+          const: ok
+        version:
+          type: string
+        time:
+          type: string
+          format: date-time

@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "event_ts": "2026-10-17T10:15:42.123Z",
+  "observed_ts": "2026-10-17T10:15:42.400Z",
+  "host": "host-alpha",
+  "source": "app-nginx",
+  "category": "http",
+  "type": "http_5xx",
+  "severity": "error",
+  "message": "GET /pay/checkout returned 502"
+}

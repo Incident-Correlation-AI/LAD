@@ -1,0 +1,21 @@
+{
+  "schema_version": "1.0",
+  "event_id": "0192f0c3-2222-7b2a-9f4e-0a1b2c3d4e5f",
+  "event_ts": "2026-10-17T10:17:13.000Z",
+  "observed_ts": "2026-10-17T10:17:13.350Z",
+  "host": "win-01",
+  "source": "windows-eventlog",
+  "service": null,
+  "category": "auth",
+  "type": "auth_failure",
+  "severity": "warning",
+  "message": "Logon failure: unknown user name or bad password.",
+  "attributes": {
+    "event_code": 4625,
+    "provider": "Microsoft-Windows-Security-Auditing",
+    "channel": "Security",
+    "target_user": "administrator",
+    "logon_type": 3,
+    "workstation": "WIN-CLIENT-07"
+  }
+}

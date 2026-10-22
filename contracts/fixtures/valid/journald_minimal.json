@@ -1,0 +1,12 @@
+{
+  "schema_version": "1.0",
+  "event_id": "0192f0c2-1111-7b2a-9f4e-0a1b2c3d4e5f",
+  "event_ts": "2026-10-17T10:16:00.000Z",
+  "observed_ts": "2026-10-17T10:16:00.200Z",
+  "host": "host-beta",
+  "source": "journald",
+  "category": "process",
+  "type": "service_restart",
+  "severity": "warning",
+  "message": "Unit nginx.service entered failed state"
+}

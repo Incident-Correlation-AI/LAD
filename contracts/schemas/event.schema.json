@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/contracts/schemas/event.schema.json",
+  "title": "Event",
+  "description": "Normalized log event envelope. Canonical contract — all collectors emit this shape.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "event_id",
+    "event_ts",
+    "observed_ts",
+    "host",
+    "source",
+    "category",
+    "type",
+    "severity",
+    "message"
+  ],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Envelope contract version. API rejects unsupported versions."
+    },
+    "event_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "Stable across retries. Generated once at the collector (UUIDv7 recommended)."
+    },
+    "event_ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Source time. MUST be timezone-aware UTC (e.g. 2026-10-17T10:15:42.123Z). Naive timestamps are invalid."
+    },
+    "observed_ts": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the collector saw the event. Timezone-aware UTC."
+    },
+    "host": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 255
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "e.g. journald, windows-eventlog, app-nginx"
+    },
+    "service": {
+      "type": ["string", "null"],
+      "maxLength": 255
+    },
+    "category": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "e.g. http, auth, db, process"
+    },
+    "type": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128,
+      "description": "e.g. http_5xx, auth_failure, service_restart"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["info", "warning", "error", "critical"]
+    },
+    "message": {
+      "type": "string",
+      "maxLength": 8192,
+      "description": "Human-readable. Untrusted data downstream — always escape at render."
+    },
+    "template": {
+      "type": ["string", "null"],
+      "maxLength": 1024,
+      "description": "Extracted pattern (best effort). null when infeasible."
+    },
+    "attributes": {
+      "type": "object",
+      "description": "Source-specific structured fields. Numeric attrs may feed features. Missing is not zero.",
+      "additionalProperties": true
+    },
+    "trace_id": {
+      "type": ["string", "null"],
+      "maxLength": 256
+    },
+    "request_id": {
+      "type": ["string", "null"],
+      "maxLength": 256
+    },
+    "depends_on": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "maxLength": 255
+      },
+      "uniqueItems": true,
+      "default": []
+    },
+    "evidence_ref": {
+      "type": ["string", "null"],
+      "maxLength": 512,
+      "description": "Pointer to REDACTED evidence only. Never raw sensitive data."
+    }
+  },
+  "additionalProperties": true
+}
