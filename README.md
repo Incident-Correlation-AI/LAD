@@ -25,10 +25,25 @@ inside a worker. `services/api` injects concrete adapters at startup
 ```bash
 make setup                       # .venv + editable install with dev extras
 cp .env.example .env             # then set real tokens in .env
+make seed                        # optional: 3 demo incidents (no worker yet)
 make local-up                    # http://127.0.0.1:8080
 ```
 
 `LAD_COLLECTOR_TOKEN` and `LAD_ADMIN_TOKEN` are required and must differ.
+
+## Local data
+
+There is no database server. The local lane uses files under `LAD_DATA_DIR`
+(default `data/`):
+
+| Path | Purpose |
+|---|---|
+| `data/lad.sqlite3` | incidents + ingestion dedupe table (SQLite, WAL mode) |
+| `data/queue/*.json` | accepted events waiting for the worker |
+| `data/queue/dead/` | messages that failed permanently |
+
+Nothing consumes the queue or creates incidents yet, so `make seed` exists to
+populate the incident endpoints for demos.
 
 ## Endpoints
 
@@ -70,6 +85,7 @@ curl -s -X POST http://127.0.0.1:8080/api/v1/events/batch \
 make lint       # ruff (undefined names, unused imports, import order)
 make test       # lint + full pytest suite
 make contract   # lint + fixture validation + OpenAPI validation + contract tests
+make smoke      # real server on a temp DB: health, ingest, list, lifecycle
 ```
 
 ## Notes for the next service (worker)
