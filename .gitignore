@@ -6,3 +6,8 @@ __pycache__/
 .ruff_cache/
 .env
 data/
+
+# dashboard
+dashboard/node_modules/
+dashboard/dist/
+dashboard/.env.local

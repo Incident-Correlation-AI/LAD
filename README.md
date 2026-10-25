@@ -11,6 +11,7 @@ src/lad/contracts/     Pydantic mirrors + JSON Schema validation (no HTTP)
 src/lad/ports/         Interfaces: queue, store, clock
 src/lad/adapters/local Concrete local implementations (files, SQLite)
 services/api/          FastAPI app: config, auth, errors, routers
+dashboard/             React + TypeScript dashboard (contract consumer only)
 tests/                 API, adapter, and contract tests
 scripts/               Fixture validator used by `make contract`
 contracts/             Canonical schemas, OpenAPI, fixtures, ADR
@@ -87,6 +88,43 @@ make test       # lint + full pytest suite
 make contract   # lint + fixture validation + OpenAPI validation + contract tests
 make smoke      # real server on a temp DB: health, ingest, list, lifecycle
 ```
+
+## Dashboard
+
+React + TypeScript (Vite, React Query, React Router). It is a **pure consumer of
+`contracts/openapi.yaml`**: no detection logic, no authorization decisions, and
+no credentials in the bundle.
+
+```bash
+make dashboard-install   # npm install
+make dashboard           # http://localhost:5173 (API must be on :8080)
+make dashboard-test      # component tests (loading/error/empty, XSS, lifecycle)
+make dashboard-check     # build + assert the bundle carries no credentials
+```
+
+Screens: incident list (URL-driven filters, cursor pagination), incident detail
+(evidence in both directions, hypotheses with support strength, non-executing
+diagnostic checks, audit trail, acknowledge/resolve).
+
+### How the dashboard authenticates (and why there is no token in the bundle)
+
+The incidents API requires an admin bearer token, and the browser must never
+hold it. The Vite **dev server** injects the header into proxied requests:
+
+```
+browser → /api/... → vite dev server (+ Authorization) → 127.0.0.1:8080
+```
+
+`LAD_ADMIN_TOKEN` is read from `dashboard/.env.local` or the repo-root `.env` at
+dev-server start, so it is never part of `dist/`. Same-origin also means no CORS
+configuration is needed. Restart `npm run dev` after changing the token.
+
+Because of that, a 401/403 is shown as "Dashboard is not authenticated" rather
+than as an empty incident list — an empty list must never be confused with an
+authentication failure.
+
+Non-local deployments need a real credential exchange (Cognito or a BFF); that
+is a pending decision, not something the bundle should solve.
 
 ## Notes for the next service (worker)
 
