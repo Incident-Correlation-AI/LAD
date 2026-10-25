@@ -57,6 +57,7 @@ jobs:
             rm -rf "build/$tfn"; mkdir -p "build/$tfn"
             cp -a "$src"/. "build/$tfn/"
             [ -d src ] && cp -a src "build/$tfn/" || true
+            [ -d contracts ] && cp -a contracts "build/$tfn/" || true
             find "build/$tfn" -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
             (cd "build/$tfn" && zip -qr "../$tfn.zip" .)
             echo "built $tfn.zip from $src"

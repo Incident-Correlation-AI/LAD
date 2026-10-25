@@ -12,8 +12,9 @@ import sys
 from pathlib import Path
 from typing import Any
 
-# Ensure src/ is importable in Lambda packaging
 _root = Path(__file__).resolve().parent
+if (_root / "contracts").exists():
+    os.environ.setdefault("LAD_CONTRACTS_DIR", str(_root / "contracts"))
 for _p in (_root / "src", _root):
     if str(_p) not in sys.path and _p.exists():
         sys.path.insert(0, str(_p))
