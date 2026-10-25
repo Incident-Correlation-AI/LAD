@@ -55,7 +55,7 @@ jobs:
             local src="$1" tfn="$2"
             [ -d "$src" ] || { echo "skip $tfn: $src missing in repo"; return 0; }
             rm -rf "build/$tfn"; mkdir -p "build/$tfn"
-            pip install -q --target "build/$tfn" pydantic jsonschema
+            pip install -q --target "build/$tfn" --platform manylinux2014_x86_64 --python-version 3.14 --only-binary=:all: pydantic jsonschema
             cp -a "$src"/. "build/$tfn/"
             [ -d src ] && cp -a src "build/$tfn/" || true
             [ -d contracts ] && cp -a contracts "build/$tfn/" || true
@@ -107,7 +107,7 @@ jobs:
           c=$(curl -s -o /dev/null -w '%{http_code}' -X POST "$API_BASE/api/v1/events/batch" \
             -H 'Content-Type: application/json' \
             -H "Authorization: Bearer $LAD_SMOKE_COLLECTOR_TOKEN" \
-            -d '{"events":[{"event_id":"cd-smoke-'$GITHUB_RUN_ID'","message":"CD smoke"}]}')
+            -d '{"events":[{"schema_version":"1.0","event_id":"cd-smoke-'$GITHUB_RUN_ID'","event_ts":"2026-10-25T15:00:00Z","observed_ts":"2026-10-25T15:00:01Z","host":"smoke-host","source":"smoke","category":"system","type":"smoke_test","severity":"info","message":"CD smoke"}]}')
           a=$(curl -s -o /dev/null -w '%{http_code}' "$API_BASE/api/v1/incidents" \
             -H "Authorization: Bearer $LAD_SMOKE_ADMIN_TOKEN")
           echo "batch=$c list=$a"
