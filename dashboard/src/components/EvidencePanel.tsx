@@ -1,62 +1,108 @@
+import { Box, List, ListItem, Typography, alpha, useTheme } from "@mui/material";
+import type { ReactNode } from "react";
+
 import type { Evidence } from "../api/types";
-import { EvidenceLine } from "./EvidenceLine";
+
+function Group({
+  title,
+  count,
+  children,
+}: {
+  title: string;
+  count: number;
+  children: ReactNode;
+}) {
+  const theme = useTheme();
+  return (
+    <Box sx={{ mb: 2 }}>
+      <Typography
+        variant="caption"
+        sx={{
+          display: "block",
+          mb: 1,
+          fontWeight: 700,
+          letterSpacing: "0.06em",
+          textTransform: "uppercase",
+          color: theme.custom.classroomSlate400,
+        }}
+      >
+        {title} · {count}
+      </Typography>
+      {children}
+    </Box>
+  );
+}
+
+function IdList({ ids }: { ids: string[] }) {
+  const theme = useTheme();
+  if (!ids.length) {
+    return (
+      <Typography variant="body2" sx={{ color: theme.custom.classroomSlate400, fontStyle: "italic" }}>
+        None recorded.
+      </Typography>
+    );
+  }
+  return (
+    <List dense disablePadding>
+      {ids.map((id) => (
+        <ListItem
+          key={id}
+          sx={{
+            px: 1.25,
+            py: 0.5,
+            mb: 0.5,
+            borderRadius: "6px",
+            bgcolor: alpha(theme.custom.classroomSlate500, 0.04),
+          }}
+        >
+          {/* Log-derived strings are attacker-controlled: rendered as text
+              nodes only, never as HTML. */}
+          <Typography sx={{ fontFamily: "monospace", fontSize: "0.78rem", wordBreak: "break-all" }}>
+            {id}
+          </Typography>
+        </ListItem>
+      ))}
+    </List>
+  );
+}
 
 export function EvidencePanel({ evidence }: { evidence: Evidence }) {
+  const theme = useTheme();
   const supporting = evidence.supporting_event_ids ?? [];
   const contradicting = evidence.contradicting_event_ids ?? [];
   const refs = evidence.redacted_refs ?? [];
 
   return (
-    <div className="evidence">
-      <div className="evidence-group">
-        <h4>
-          Supporting evidence <span className="count">{supporting.length}</span>
-        </h4>
-        {supporting.length ? (
-          <ul>
-            {supporting.map((id) => (
-              <EvidenceLine key={id} eventId={id} />
-            ))}
-          </ul>
-        ) : (
-          <p className="muted">None recorded.</p>
-        )}
-      </div>
+    <Box>
+      <Group title="Supporting evidence" count={supporting.length}>
+        <IdList ids={supporting} />
+      </Group>
 
       {/* Always rendered, even when empty: citing only supporting evidence
           would not be honest about what the detector could not see. */}
-      <div className="evidence-group">
-        <h4>
-          Contradicting evidence <span className="count">{contradicting.length}</span>
-        </h4>
-        {contradicting.length ? (
-          <ul>
-            {contradicting.map((id) => (
-              <EvidenceLine key={id} eventId={id} />
-            ))}
-          </ul>
-        ) : (
-          <p className="muted">None recorded.</p>
-        )}
-      </div>
+      <Group title="Contradicting evidence" count={contradicting.length}>
+        <IdList ids={contradicting} />
+      </Group>
 
       {refs.length ? (
-        <div className="evidence-group">
-          <h4>
-            Redacted references <span className="count">{refs.length}</span>
-          </h4>
-          <ul>
-            {refs.map((ref) => (
-              <EvidenceLine key={ref} eventId={ref} />
-            ))}
-          </ul>
-        </div>
+        <Group title="Redacted references" count={refs.length}>
+          <IdList ids={refs} />
+        </Group>
       ) : null}
 
-      <p className="footnote">
+      <Typography
+        variant="caption"
+        sx={{
+          display: "block",
+          mt: 1,
+          pt: 1,
+          borderTop: `1px solid ${theme.palette.divider}`,
+          color: theme.custom.classroomSlate400,
+        }}
+      >
         Raw logs are not archived by default. References point to redacted
         extracts only.
-      </p>
-    </div>
+      </Typography>
+    </Box>
   );
 }

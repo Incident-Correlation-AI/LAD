@@ -4,6 +4,7 @@ import type { ReactElement } from "react";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import type { Incident } from "../api/types";
+import { ThemeProvider } from "../theme/ThemeProvider";
 
 export function makeIncident(overrides: Partial<Incident> = {}): Incident {
   return {
@@ -67,21 +68,25 @@ export function renderWithProviders(
   { route = "/" }: { route?: string } = {},
 ) {
   return render(
-    <QueryClientProvider client={testQueryClient()}>
-      <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
-    </QueryClientProvider>,
+    <ThemeProvider>
+      <QueryClientProvider client={testQueryClient()}>
+        <MemoryRouter initialEntries={[route]}>{ui}</MemoryRouter>
+      </QueryClientProvider>
+    </ThemeProvider>,
   );
 }
 
 /** Render a detail page under a real route so `useParams` is populated. */
 export function renderDetail(element: ReactElement, incidentId: string) {
   return render(
-    <QueryClientProvider client={testQueryClient()}>
-      <MemoryRouter initialEntries={[`/incidents/${incidentId}`]}>
-        <Routes>
-          <Route path="/incidents/:incidentId" element={element} />
-        </Routes>
-      </MemoryRouter>
-    </QueryClientProvider>,
+    <ThemeProvider>
+      <QueryClientProvider client={testQueryClient()}>
+        <MemoryRouter initialEntries={[`/incidents/${incidentId}`]}>
+          <Routes>
+            <Route path="/incidents/:incidentId" element={element} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
+    </ThemeProvider>,
   );
 }

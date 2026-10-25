@@ -12,7 +12,10 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
-const distDir = path.resolve(process.argv[2] ?? "dist");
+const args = process.argv.slice(2);
+const allowEmpty = args.includes("--allow-empty");
+const distArg = args.find((arg) => !arg.startsWith("--"));
+const distDir = path.resolve(distArg ?? "dist");
 const repoRoot = path.resolve(import.meta.dirname, "..", "..");
 
 function readEnvFile(file) {
@@ -49,8 +52,19 @@ const secrets = secretKeys
   .filter(([, value]) => typeof value === "string" && value.length >= 8);
 
 if (!secrets.length) {
-  console.log("[check-bundle-secrets] no credentials in environment; nothing to compare (ok)");
-  process.exit(0);
+  // Fail closed. Passing silently would mean the guard is a no-op in CI, where
+  // .env is absent by design — the one place it must actually check.
+  if (allowEmpty) {
+    console.log(
+      "[check-bundle-secrets] no credentials in environment; skipped on request (--allow-empty)",
+    );
+    process.exit(0);
+  }
+  console.error(
+    "[check-bundle-secrets] no credentials found in .env or the environment, so nothing could be verified. " +
+      "Set the tokens, or pass --allow-empty to skip deliberately.",
+  );
+  process.exit(1);
 }
 
 if (!fs.existsSync(distDir)) {

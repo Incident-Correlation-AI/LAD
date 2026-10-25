@@ -85,6 +85,21 @@ describe("IncidentDetail", () => {
     expect(await screen.findByText("acknowledged")).toBeInTheDocument();
   });
 
+  it("resolves an acknowledged incident and shows the server's record", async () => {
+    mockedFetchIncident.mockResolvedValue(makeIncident({ status: "acknowledged" }));
+    mockedResolve.mockResolvedValue(makeIncident({ status: "resolved" }));
+
+    const user = userEvent.setup();
+    renderDetail(<IncidentDetail />, "inc_test_1");
+
+    await user.click(await screen.findByRole("button", { name: /^resolve$/i }));
+
+    expect(mockedResolve).toHaveBeenCalledWith("inc_test_1");
+    expect(await screen.findByText("resolved")).toBeInTheDocument();
+    // The detail cache must not be refetched back to the pre-action state.
+    expect(mockedFetchIncident).toHaveBeenCalledTimes(1);
+  });
+
   it("renders attacker-controlled log text as text, never as HTML (XSS)", async () => {
     const payload = '<script>alert("xss")</script>';
     mockedFetchIncident.mockResolvedValue(

@@ -1,184 +1,320 @@
-import { Link, useParams } from "react-router-dom";
+import {
+  Box,
+  Button,
+  CircularProgress,
+  Grid,
+  Paper,
+  Stack,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import { Link as RouterLink, useParams } from "react-router-dom";
+import type { ReactNode } from "react";
 
-import { SeverityBadge, StatusPill } from "../components/Badges";
+import { SeverityChip, StatusChip } from "../components/Chips";
 import { AuditTrail, WindowTimeline } from "../components/AuditTrail";
 import { DiagnosticCheckItem } from "../components/DiagnosticCheck";
 import { EvidencePanel } from "../components/EvidencePanel";
 import { HypothesisCard } from "../components/HypothesisCard";
-import { ErrorState, Spinner } from "../components/States";
+import { ApiErrorState, StateCard } from "../components/StateCard";
 import { useIncident, useIncidentLifecycle } from "../hooks/useIncidents";
 import { formatAnomalyScore, formatTimestamp } from "../lib/format";
 
+function Section({
+  title,
+  subtitle,
+  aside,
+  children,
+}: {
+  title: string;
+  subtitle?: ReactNode;
+  aside?: ReactNode;
+  children: ReactNode;
+}) {
+  const theme = useTheme();
+  return (
+    <Paper sx={{ p: 2.5, height: "100%" }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="baseline" gap={2} mb={0.5}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+          {title}
+        </Typography>
+        {aside}
+      </Stack>
+      {subtitle ? (
+        <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500, mb: 2 }}>
+          {subtitle}
+        </Typography>
+      ) : (
+        <Box sx={{ mb: 2 }} />
+      )}
+      {children}
+    </Paper>
+  );
+}
+
+function Meta({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
+  const theme = useTheme();
+  return (
+    <Box>
+      <Typography
+        variant="caption"
+        sx={{
+          display: "block",
+          textTransform: "uppercase",
+          letterSpacing: "0.06em",
+          fontWeight: 700,
+          color: theme.custom.classroomSlate400,
+          mb: 0.25,
+        }}
+      >
+        {label}
+      </Typography>
+      <Typography variant="body2" sx={{ fontWeight: 600, color: theme.custom.classroomSlate800 }}>
+        {children}
+      </Typography>
+      {hint ? (
+        <Typography variant="caption" sx={{ color: theme.custom.classroomSlate400 }}>
+          {hint}
+        </Typography>
+      ) : null}
+    </Box>
+  );
+}
+
 export function IncidentDetail() {
+  const theme = useTheme();
   const { incidentId = "" } = useParams();
   const query = useIncident(incidentId);
   const { acknowledge, resolve } = useIncidentLifecycle(incidentId);
 
-  if (query.isLoading) return <Spinner label="Loading incident" />;
+  if (query.isLoading) {
+    return (
+      <StateCard
+        role="status"
+        title="Loading incident"
+        icon={<CircularProgress size={22} />}
+        message="Fetching the incident record…"
+      />
+    );
+  }
+
   if (query.isError) {
-    return <ErrorState error={query.error} retry={() => void query.refetch()} />;
+    return <ApiErrorState error={query.error} retry={() => void query.refetch()} />;
   }
 
   const incident = query.data;
-  if (!incident) return <ErrorState error={new Error("Incident not found")} />;
+  if (!incident) return <ApiErrorState error={new Error("Incident not found")} />;
 
   const actionError = acknowledge.error ?? resolve.error;
 
   return (
-    <section className="page">
-      <nav className="breadcrumb">
-        <Link to="/">← All incidents</Link>
-      </nav>
+    <Box>
+      <Button
+        component={RouterLink}
+        to="/"
+        size="small"
+        startIcon={<ArrowBackIcon />}
+        sx={{ mb: 2, ml: -1, color: theme.custom.classroomSlate600 }}
+      >
+        All incidents
+      </Button>
 
-      <header className="detail-header">
-        <div>
-          <h1>
-            <code className="mono">{incident.incident_id}</code>
-          </h1>
-          <div className="header-badges">
-            <SeverityBadge severity={incident.severity} />
-            <StatusPill status={incident.status} />
-            <span className="badge neutral mono">{incident.detector}</span>
-          </div>
-        </div>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="flex-start"
+        gap={2}
+        flexWrap="wrap"
+        mb={2.5}
+      >
+        <Box sx={{ minWidth: 0 }}>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: "monospace",
+              fontWeight: 700,
+              letterSpacing: "-0.02em",
+              color: theme.custom.classroomSlate900,
+              wordBreak: "break-all",
+            }}
+          >
+            {incident.incident_id}
+          </Typography>
+          <Stack direction="row" spacing={1} mt={1} alignItems="center" flexWrap="wrap" useFlexGap>
+            <SeverityChip severity={incident.severity} />
+            <StatusChip status={incident.status} />
+            <Typography
+              variant="caption"
+              sx={{ fontFamily: "monospace", color: theme.custom.classroomSlate400 }}
+            >
+              {incident.detector} · schema {incident.schema_version}
+            </Typography>
+          </Stack>
+        </Box>
 
-        <div className="actions">
-          <button
-            type="button"
-            className="btn"
+        <Stack direction="row" spacing={1.5}>
+          <Button
+            variant="outlined"
             disabled={incident.status !== "open" || acknowledge.isPending}
             onClick={() => acknowledge.mutate()}
           >
             {acknowledge.isPending ? "Acknowledging…" : "Acknowledge"}
-          </button>
-          <button
-            type="button"
-            className="btn btn-primary"
+          </Button>
+          <Button
+            variant="contained"
             disabled={incident.status === "resolved" || resolve.isPending}
             onClick={() => resolve.mutate()}
           >
             {resolve.isPending ? "Resolving…" : "Resolve"}
-          </button>
-        </div>
-      </header>
+          </Button>
+        </Stack>
+      </Stack>
 
       {actionError ? (
-        <div className="inline-error" role="alert">
+        <Paper
+          role="alert"
+          sx={{
+            mb: 2.5,
+            p: 1.5,
+            bgcolor: theme.custom.errorRed100,
+            borderColor: theme.custom.errorRed300,
+            color: theme.custom.errorRed700,
+            fontSize: "0.85rem",
+          }}
+        >
           Action failed: {actionError instanceof Error ? actionError.message : String(actionError)}
-        </div>
+        </Paper>
       ) : null}
 
-      <div className="grid">
-        <div className="card">
-          <h2>Detection</h2>
-          <dl className="meta">
-            <div>
-              <dt>Anomaly score</dt>
-              <dd>
-                {formatAnomalyScore(incident.anomaly_score)}
-                <span className="hint">detector-specific unusualness — not a probability</span>
-              </dd>
-            </div>
-            <div>
-              <dt>Severity</dt>
-              <dd>
-                {incident.severity}
-                <span className="hint">estimated operational impact (rule-based)</span>
-              </dd>
-            </div>
-            <div>
-              <dt>Detector</dt>
-              <dd className="mono">{incident.detector}</dd>
-            </div>
-            {incident.model_versions && Object.keys(incident.model_versions).length ? (
-              <div>
-                <dt>Model versions</dt>
-                <dd className="mono">
-                  {Object.entries(incident.model_versions)
-                    .map(([name, version]) => `${name} ${version}`)
-                    .join(" · ")}
-                </dd>
-              </div>
-            ) : null}
-            <div>
-              <dt>Created</dt>
-              <dd>{formatTimestamp(incident.created_at)}</dd>
-            </div>
-            <div>
-              <dt>Updated</dt>
-              <dd>{formatTimestamp(incident.updated_at)}</dd>
-            </div>
-            <div>
-              <dt>Schema</dt>
-              <dd className="mono">{incident.schema_version}</dd>
-            </div>
-          </dl>
-        </div>
+      <Grid container spacing={2.5} mb={2.5}>
+        <Grid size={{ xs: 12, md: 7 }}>
+          <Section title="Detection">
+            <Grid container spacing={2}>
+              <Grid size={{ xs: 6, sm: 4 }}>
+                <Meta label="Anomaly score" hint="not a probability">
+                  <Box
+                    component="span"
+                    title="Detector-specific unusualness — not a probability"
+                    sx={{ fontFamily: "monospace", fontSize: "1.05rem" }}
+                  >
+                    {formatAnomalyScore(incident.anomaly_score)}
+                  </Box>
+                </Meta>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 4 }}>
+                <Meta label="Severity" hint="estimated operational impact">
+                  {incident.severity}
+                </Meta>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 4 }}>
+                <Meta label="Detector">{incident.detector}</Meta>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 4 }}>
+                <Meta label="Created">{formatTimestamp(incident.created_at)}</Meta>
+              </Grid>
+              <Grid size={{ xs: 6, sm: 4 }}>
+                <Meta label="Updated">{formatTimestamp(incident.updated_at)}</Meta>
+              </Grid>
+              {incident.model_versions && Object.keys(incident.model_versions).length ? (
+                <Grid size={{ xs: 12, sm: 4 }}>
+                  <Meta label="Model versions">
+                    <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
+                      {Object.entries(incident.model_versions)
+                        .map(([name, version]) => `${name} ${version}`)
+                        .join(" · ")}
+                    </Box>
+                  </Meta>
+                </Grid>
+              ) : null}
+            </Grid>
+          </Section>
+        </Grid>
 
-        <div className="card">
-          <h2>Affected entities</h2>
-          <ul className="entity-list">
-            {incident.affected_entities.map((entity) => (
-              <li key={`${entity.host}-${entity.service ?? ""}-${entity.source ?? ""}`}>
-                <strong>{entity.host}</strong>
-                {entity.service ? <span className="muted"> · {entity.service}</span> : null}
-                {entity.source ? <span className="muted"> · {entity.source}</span> : null}
-              </li>
-            ))}
-          </ul>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Section title="Affected entities">
+            <Stack spacing={1.25} mb={2.5}>
+              {incident.affected_entities.map((entity) => (
+                <Box key={`${entity.host}-${entity.service ?? ""}-${entity.source ?? ""}`}>
+                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    {entity.host}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: theme.custom.classroomSlate500 }}>
+                    {[entity.service, entity.source].filter(Boolean).join(" · ") || "—"}
+                  </Typography>
+                </Box>
+              ))}
+            </Stack>
 
-          <h2 className="spaced">Observation windows</h2>
-          <WindowTimeline windows={incident.windows ?? []} />
-        </div>
-      </div>
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                mb: 1,
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                fontWeight: 700,
+                color: theme.custom.classroomSlate400,
+              }}
+            >
+              Observation windows
+            </Typography>
+            <WindowTimeline windows={incident.windows ?? []} />
+          </Section>
+        </Grid>
+      </Grid>
 
-      <div className="card">
-        <h2>Evidence</h2>
-        <EvidencePanel evidence={incident.evidence} />
-      </div>
+      <Box mb={2.5}>
+        <Section title="Evidence">
+          <EvidencePanel evidence={incident.evidence} />
+        </Section>
+      </Box>
 
-      <div className="card">
-        <h2>
-          Hypotheses <span className="count">{incident.hypotheses.length}</span>
-        </h2>
-        <p className="muted">
-          Confidence describes how strongly the evidence supports an explanation.
-          It is not a probability, and “unknown” is a valid outcome.
-        </p>
-        {incident.hypotheses.length ? (
-          <div className="hypothesis-list">
-            {incident.hypotheses.map((hypothesis, index) => (
-              <HypothesisCard key={`${hypothesis.statement}-${index}`} hypothesis={hypothesis} />
-            ))}
-          </div>
-        ) : (
-          <p className="muted">No hypothesis recorded for this incident.</p>
-        )}
-      </div>
+      <Box mb={2.5}>
+        <Section
+          title={`Hypotheses (${incident.hypotheses.length})`}
+          subtitle="Confidence describes how strongly the evidence supports an explanation. It is not a probability, and “unknown” is a valid outcome."
+        >
+          {incident.hypotheses.length ? (
+            <Stack spacing={2}>
+              {incident.hypotheses.map((hypothesis, index) => (
+                <HypothesisCard key={`${hypothesis.statement}-${index}`} hypothesis={hypothesis} />
+              ))}
+            </Stack>
+          ) : (
+            <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500 }}>
+              No hypothesis recorded for this incident.
+            </Typography>
+          )}
+        </Section>
+      </Box>
 
-      <div className="card">
-        <h2>
-          Diagnostic checks <span className="count">{incident.diagnostic_checks.length}</span>
-        </h2>
-        <p className="muted">
-          Recommendations for a human to follow. Nothing here is executed
-          automatically — this product never remediates.
-        </p>
-        {incident.diagnostic_checks.length ? (
-          <ul className="check-list">
-            {incident.diagnostic_checks.map((check, index) => (
-              <DiagnosticCheckItem key={`${check.instruction}-${index}`} check={check} />
-            ))}
-          </ul>
-        ) : (
-          <p className="muted">No checks suggested.</p>
-        )}
-      </div>
+      <Grid container spacing={2.5}>
+        <Grid size={{ xs: 12, md: 7 }}>
+          <Section
+            title={`Diagnostic checks (${incident.diagnostic_checks.length})`}
+            subtitle="Recommendations for a human to follow. Nothing here is executed automatically — this product never remediates."
+          >
+            {incident.diagnostic_checks.length ? (
+              <Box component="ul" sx={{ m: 0, p: 0, display: "grid", gap: 1.5 }}>
+                {incident.diagnostic_checks.map((check, index) => (
+                  <DiagnosticCheckItem key={`${check.instruction}-${index}`} check={check} />
+                ))}
+              </Box>
+            ) : (
+              <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500 }}>
+                No checks suggested.
+              </Typography>
+            )}
+          </Section>
+        </Grid>
 
-      <div className="card">
-        <h2>Audit trail</h2>
-        <AuditTrail entries={incident.audit} />
-      </div>
-    </section>
+        <Grid size={{ xs: 12, md: 5 }}>
+          <Section title="Audit trail">
+            <AuditTrail entries={incident.audit} />
+          </Section>
+        </Grid>
+      </Grid>
+    </Box>
   );
 }

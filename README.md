@@ -91,9 +91,9 @@ make smoke      # real server on a temp DB: health, ingest, list, lifecycle
 
 ## Dashboard
 
-React + TypeScript (Vite, React Query, React Router). It is a **pure consumer of
-`contracts/openapi.yaml`**: no detection logic, no authorization decisions, and
-no credentials in the bundle.
+React + TypeScript (Vite, MUI 7, React Query, React Router, Recharts). It is a
+**pure consumer of `contracts/openapi.yaml`**: no detection logic, no
+authorization decisions, and no credentials in the bundle.
 
 ```bash
 make dashboard-install   # npm install
@@ -102,9 +102,42 @@ make dashboard-test      # component tests (loading/error/empty, XSS, lifecycle)
 make dashboard-check     # build + assert the bundle carries no credentials
 ```
 
-Screens: incident list (URL-driven filters, cursor pagination), incident detail
-(evidence in both directions, hypotheses with support strength, non-executing
-diagnostic checks, audit trail, acknowledge/resolve).
+Screens:
+
+- **Incidents** (`/`) — summary cards (open / acknowledged / resolved /
+  critical+high), a severity bar chart, URL-driven filters, cursor pagination.
+- **Incident detail** (`/incidents/{id}`) — evidence in both directions,
+  hypotheses with support strength, non-executing diagnostic checks, audit
+  trail, acknowledge/resolve.
+
+There is no sidebar and no health page: the product has two screens, so
+navigation chrome would be furniture with nothing to hold. API liveness is
+covered by `GET /api/v1/health` for operators and probes, not by the UI.
+
+Summary counts are capped: each status is counted from at most one page of 100,
+and a `next_cursor` renders as `100+` instead of asserting an exact number the
+API never proved.
+
+### Design system
+
+The light "ceramic sand + nile blue" theme is shared with the student
+mark-management dashboard, so both products read as one family:
+
+| Concern | Location |
+|---|---|
+| Palette (10 shades × 7 families) | `src/theme/customColors.ts` |
+| Heading/body fonts (Space Grotesk, Inter) | `src/theme/fonts.ts` |
+| MUI theme + `theme.custom` augmentation | `src/theme/ThemeProvider.tsx` |
+| Top bar + centred 1240px page frame | `src/components/TopBar.tsx`, `src/App.tsx` |
+
+Surfaces are deliberately separated — an off-white canvas (`#F4F1EC`), pure
+white cards, a single hairline (`#E6E0D4`) — with one 12px radius token. Cards
+that share the canvas colour read as shapeless blobs, which is why opacity
+tints rather than gradients/spines do the accenting here.
+
+Accent colours are read as `theme.custom.nileBlue600`, never inline hex. The
+three surface neutrals (`canvas`, `surface`, `line`) are declared once in
+`ThemeProvider.tsx` so they cannot drift between cards.
 
 ### How the dashboard authenticates (and why there is no token in the bundle)
 

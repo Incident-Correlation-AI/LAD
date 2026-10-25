@@ -1,17 +1,31 @@
 import type { Incident, IncidentFilters, IncidentList } from "./types";
 
+/** One field-level reason from the API's `error.details` array. */
+export interface ApiErrorDetail {
+  field: string;
+  reason: string;
+}
+
 /** Error carrying the API's documented shape (`ApiError`). */
 export class ApiError extends Error {
   readonly status: number;
   readonly code?: string;
   readonly requestId?: string;
+  readonly details: ApiErrorDetail[];
 
-  constructor(status: number, message: string, code?: string, requestId?: string) {
+  constructor(
+    status: number,
+    message: string,
+    code?: string,
+    requestId?: string,
+    details: ApiErrorDetail[] = [],
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
     this.code = code;
     this.requestId = requestId;
+    this.details = details;
   }
 
   /**
@@ -26,19 +40,46 @@ export class ApiError extends Error {
 
 const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
 
+function parseDetails(value: unknown): ApiErrorDetail[] {
+  if (!Array.isArray(value)) return [];
+  return value.flatMap((item) => {
+    if (!item || typeof item !== "object") return [];
+    const record = item as Record<string, unknown>;
+    if (typeof record.field !== "string" || typeof record.reason !== "string") return [];
+    return [{ field: record.field, reason: record.reason }];
+  });
+}
+
+/**
+ * The API always answers with `{ "error": { code, message, request_id, details? } }`
+ * (see `services/api/errors.py`). Reading the envelope's top level instead of
+ * `error.*` silently threw away every server message, so every failure looked
+ * like "Request failed with status N".
+ */
 async function parseError(response: Response): Promise<ApiError> {
   let message = `Request failed with status ${response.status}`;
   let code: string | undefined;
+  let requestId = response.headers.get("x-request-id") ?? undefined;
+  let details: ApiErrorDetail[] = [];
+
   try {
-    const body = await response.json();
-    if (body && typeof body === "object") {
-      if (typeof body.message === "string") message = body.message;
-      if (typeof body.code === "string") code = body.code;
+    const body: unknown = await response.json();
+    const envelope =
+      body && typeof body === "object"
+        ? (body as Record<string, unknown>).error
+        : undefined;
+    if (envelope && typeof envelope === "object") {
+      const record = envelope as Record<string, unknown>;
+      if (typeof record.message === "string" && record.message.trim()) message = record.message;
+      if (typeof record.code === "string") code = record.code;
+      if (typeof record.request_id === "string") requestId = record.request_id;
+      details = parseDetails(record.details);
     }
   } catch {
     // Non-JSON error body: keep the status-based message.
   }
-  return new ApiError(response.status, message, code, response.headers.get("x-request-id") ?? undefined);
+
+  return new ApiError(response.status, message, code, requestId, details);
 }
 
 async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
@@ -92,3 +133,4 @@ export function acknowledgeIncident(incidentId: string): Promise<Incident> {
 export function resolveIncident(incidentId: string): Promise<Incident> {
   return postJson<Incident>(`/api/v1/incidents/${encodeURIComponent(incidentId)}/resolve`);
 }
+

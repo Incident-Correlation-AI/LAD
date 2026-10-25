@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError, fetchIncidents } from "../api/client";
+import type { IncidentList as IncidentListPayload } from "../api/types";
 import { IncidentList } from "../pages/IncidentList";
 import { makeIncident, renderWithProviders } from "../test/utils";
 
@@ -19,19 +20,42 @@ vi.mock("../api/client", async () => {
 
 const mockedFetchIncidents = vi.mocked(fetchIncidents);
 
+/** The summary cards count with limit=100; page requests use limit=20. */
+const isCountQuery = (filters: { limit?: number }) => filters.limit === 100;
+
+/**
+ * Serve `pages` in order for list requests, and an empty page for the summary
+ * queries, so assertions target the list behaviour under test.
+ */
+function mockListPages(pages: IncidentListPayload[]) {
+  let index = 0;
+  mockedFetchIncidents.mockImplementation((filters) => {
+    if (isCountQuery(filters)) {
+      return Promise.resolve({ items: [], next_cursor: null });
+    }
+    const page = pages[Math.min(index, pages.length - 1)];
+    index += 1;
+    return Promise.resolve(page);
+  });
+}
+
+const listCalls = () => mockedFetchIncidents.mock.calls.filter(([filters]) => !isCountQuery(filters));
+
 describe("IncidentList", () => {
   beforeEach(() => {
     mockedFetchIncidents.mockReset();
   });
 
   it("shows a loading state while the request is pending", () => {
-    mockedFetchIncidents.mockReturnValue(new Promise(() => {}));
+    mockedFetchIncidents.mockReturnValue(new Promise<IncidentListPayload>(() => {}));
     renderWithProviders(<IncidentList />);
     expect(screen.getByRole("status")).toHaveTextContent(/loading incidents/i);
+    // Counts are unknown yet: a literal "0" would be a claim, not a placeholder.
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
   });
 
   it("shows an empty state that avoids implying the system is healthy", async () => {
-    mockedFetchIncidents.mockResolvedValue({ items: [], next_cursor: null });
+    mockListPages([{ items: [], next_cursor: null }]);
     renderWithProviders(<IncidentList />);
 
     expect(await screen.findByText(/no incidents match these filters/i)).toBeInTheDocument();
@@ -47,10 +71,7 @@ describe("IncidentList", () => {
   });
 
   it("renders incidents and labels the score as non-probabilistic", async () => {
-    mockedFetchIncidents.mockResolvedValue({
-      items: [makeIncident()],
-      next_cursor: null,
-    });
+    mockListPages([{ items: [makeIncident()], next_cursor: null }]);
     renderWithProviders(<IncidentList />);
 
     expect(await screen.findByText("inc_test_1")).toBeInTheDocument();
@@ -61,31 +82,27 @@ describe("IncidentList", () => {
   });
 
   it("keeps filters in the URL and refetches with them", async () => {
-    mockedFetchIncidents.mockResolvedValue({ items: [], next_cursor: null });
+    mockListPages([{ items: [], next_cursor: null }]);
     const user = userEvent.setup();
     renderWithProviders(<IncidentList />, { route: "/?severity=high" });
 
-    await waitFor(() => expect(mockedFetchIncidents).toHaveBeenCalled());
-    expect(mockedFetchIncidents.mock.calls.at(-1)?.[0]).toMatchObject({ severity: "high" });
+    await waitFor(() => expect(listCalls().length).toBeGreaterThan(0));
+    expect(listCalls().at(-1)?.[0]).toMatchObject({ severity: "high" });
 
-    await user.selectOptions(screen.getByLabelText(/status/i), "resolved");
+    // MUI Select is a combobox + listbox, not a native <select>.
+    await user.click(screen.getByRole("combobox", { name: /status/i }));
+    await user.click(await screen.findByRole("option", { name: "resolved" }));
 
     await waitFor(() => {
-      const lastFilters = mockedFetchIncidents.mock.calls.at(-1)?.[0];
-      expect(lastFilters).toMatchObject({ severity: "high", status: "resolved" });
+      expect(listCalls().at(-1)?.[0]).toMatchObject({ severity: "high", status: "resolved" });
     });
   });
 
   it("paginates with the opaque cursor from the previous page", async () => {
-    mockedFetchIncidents
-      .mockResolvedValueOnce({
-        items: [makeIncident({ incident_id: "inc_page_1" })],
-        next_cursor: "cursor-abc",
-      })
-      .mockResolvedValueOnce({
-        items: [makeIncident({ incident_id: "inc_page_2" })],
-        next_cursor: null,
-      });
+    mockListPages([
+      { items: [makeIncident({ incident_id: "inc_page_1" })], next_cursor: "cursor-abc" },
+      { items: [makeIncident({ incident_id: "inc_page_2" })], next_cursor: null },
+    ]);
 
     const user = userEvent.setup();
     renderWithProviders(<IncidentList />);
@@ -94,7 +111,53 @@ describe("IncidentList", () => {
     await user.click(screen.getByRole("button", { name: /load more/i }));
 
     expect(await screen.findByText("inc_page_2")).toBeInTheDocument();
-    expect(mockedFetchIncidents.mock.calls.at(-1)?.[1]).toBe("cursor-abc");
+    expect(mockedFetchIncidents.mock.calls.map((call) => call[1])).toContain("cursor-abc");
     expect(screen.getByText(/end of results/i)).toBeInTheDocument();
+  });
+
+  it("caps summary counts honestly when a status has more than one page", async () => {
+    const page: IncidentListPayload = {
+      items: Array.from({ length: 100 }, (_, i) =>
+        makeIncident({ incident_id: `inc_${i}` }),
+      ),
+      next_cursor: "more",
+    };
+    mockedFetchIncidents.mockImplementation((filters) => {
+      if (!isCountQuery(filters)) {
+        return Promise.resolve({ items: [], next_cursor: null });
+      }
+      if (filters.status === "open") return Promise.resolve(page);
+      return Promise.resolve({ items: [], next_cursor: null });
+    });
+
+    renderWithProviders(<IncidentList />);
+
+    // Not "100" — the API could not prove there are only 100. Both the "open"
+    // tile and the severity total are capped, so both carry the marker.
+    expect((await screen.findAllByText("100+")).length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("ignores filter values the contract does not define", async () => {
+    mockListPages([{ items: [], next_cursor: null }]);
+    renderWithProviders(<IncidentList />, { route: "/?status=exploded&severity=critical" });
+
+    await waitFor(() => expect(listCalls().length).toBeGreaterThan(0));
+    // The bogus status is dropped instead of being sent and 422-ing the list.
+    expect(listCalls().at(-1)?.[0]).toMatchObject({ severity: "critical" });
+    expect(listCalls().at(-1)?.[0].status).toBeUndefined();
+  });
+
+  it("says the summary counts are unavailable instead of showing zeros", async () => {
+    mockedFetchIncidents.mockImplementation((filters) => {
+      if (isCountQuery(filters)) return Promise.reject(new ApiError(503, "Storage unavailable"));
+      return Promise.resolve({ items: [], next_cursor: null });
+    });
+
+    renderWithProviders(<IncidentList />);
+
+    expect(await screen.findByText(/summary counts are unavailable/i)).toBeInTheDocument();
+    expect(screen.getAllByText("—").length).toBeGreaterThan(0);
+    // The table itself still loads.
+    expect(await screen.findByText(/no incidents match these filters/i)).toBeInTheDocument();
   });
 });

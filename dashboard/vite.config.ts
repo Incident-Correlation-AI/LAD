@@ -48,6 +48,20 @@ export default defineConfig(() => {
 
   return {
     plugins: [react()],
+    build: {
+      // MUI + Recharts are large but stable; splitting them keeps the app
+      // chunk small and cacheable across deploys.
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            react: ["react", "react-dom", "react-router-dom"],
+            mui: ["@mui/material", "@mui/icons-material", "@emotion/react", "@emotion/styled"],
+            charts: ["recharts"],
+          },
+        },
+      },
+      chunkSizeWarningLimit: 700,
+    },
     server: {
       port: 5173,
       proxy: {
