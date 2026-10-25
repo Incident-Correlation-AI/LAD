@@ -141,3 +141,33 @@ def test_dynamodb_store_incident_crud_and_lifecycle(mock_dynamodb, incident_fact
     )
     assert resolved["status"] == "resolved"
     assert len(resolved["audit"]) == 2
+
+
+def test_dynamodb_legacy_item_handling(mock_dynamodb):
+    # Simulate a raw item stored by an old smoke test (has gsi1, but no "doc" attribute or schema fields)
+    mock_dynamodb.table.put_item(
+        Item={
+            "pk": "INCIDENT",
+            "sk": "INCIDENT#legacy-99",
+            "gsi1pk": "STATUS#open",
+            "gsi1sk": "2026-10-21T10:00:00+00:00#legacy-99",
+            "incident_id": "legacy-99",
+            "status": "open",
+            "severity": "high",
+            "created_at": "2026-10-21T10:00:00+00:00",
+        }
+    )
+
+    item = mock_dynamodb.get_incident("legacy-99")
+    assert item is not None
+    assert item["incident_id"] == "legacy-99"
+
+    items, _ = mock_dynamodb.list_incidents(status="open")
+    assert any(i["incident_id"] == "legacy-99" for i in items)
+
+    updated = mock_dynamodb.update_status(
+        "legacy-99", "acknowledged", actor="operator", at="2026-10-25T15:00:00+00:00"
+    )
+    assert updated is not None
+    assert updated["status"] == "acknowledged"
+

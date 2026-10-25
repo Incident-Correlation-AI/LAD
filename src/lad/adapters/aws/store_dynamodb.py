@@ -115,7 +115,16 @@ class DynamoDBStore:
             Key={"pk": "INCIDENT", "sk": f"INCIDENT#{incident_id}"}
         )
         item = response.get("Item")
-        return json.loads(item["doc"]) if item else None
+        if not item:
+            return None
+        if "doc" in item:
+            try:
+                return json.loads(item["doc"])
+            except Exception:
+                pass
+        doc = dict(item)
+        doc.setdefault("incident_id", incident_id)
+        return doc
 
     def list_incidents(
         self,
@@ -150,9 +159,24 @@ class DynamoDBStore:
         # Parse documents and apply filters
         parsed_records: list[tuple[str, str, dict[str, Any]]] = []
         for item in raw_items:
-            doc = json.loads(item["doc"])
-            c_at = _normalize_ts(doc["created_at"])
-            i_id = doc["incident_id"]
+            if "doc" in item:
+                try:
+                    doc = json.loads(item["doc"])
+                except Exception:
+                    doc = dict(item)
+            else:
+                doc = dict(item)
+                doc.setdefault(
+                    "incident_id",
+                    item.get("sk", "").replace("INCIDENT#", "") or item.get("incident_id", "unknown"),
+                )
+                doc.setdefault("status", item.get("status", "open"))
+                doc.setdefault("created_at", item.get("created_at", "2026-10-22T00:00:00+00:00"))
+                doc.setdefault("severity", item.get("severity", "medium"))
+
+            created_at_val = doc.get("created_at") or "2026-10-22T00:00:00+00:00"
+            c_at = _normalize_ts(str(created_at_val))
+            i_id = str(doc.get("incident_id") or "unknown")
 
             if status and doc.get("status") != status:
                 continue
@@ -164,7 +188,7 @@ class DynamoDBStore:
                 continue
             if host:
                 entities = doc.get("affected_entities", [])
-                if not any(e.get("host") == host for e in entities):
+                if not any(isinstance(e, dict) and e.get("host") == host for e in entities):
                     continue
 
             parsed_records.append((c_at, i_id, doc))
@@ -213,6 +237,17 @@ class DynamoDBStore:
         incident.setdefault("audit", []).append(
             {"action": action, "actor": actor, "at": at, "note": None}
         )
+
+        # Ensure minimal schema validity for legacy records
+        incident.setdefault("schema_version", "1.0")
+        incident.setdefault("severity", "medium")
+        incident.setdefault("affected_entities", [{"host": "unknown"}])
+        incident.setdefault("anomaly_score", 0.0)
+        incident.setdefault("detector", "statistical_baseline")
+        incident.setdefault("evidence", {"supporting_event_ids": [], "contradicting_event_ids": []})
+        incident.setdefault("hypotheses", [])
+        incident.setdefault("diagnostic_checks", [])
+        incident.setdefault("created_at", incident.get("updated_at") or at)
 
         self.put_incident(incident)
         return incident

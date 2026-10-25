@@ -55,6 +55,7 @@ jobs:
             local src="$1" tfn="$2"
             [ -d "$src" ] || { echo "skip $tfn: $src missing in repo"; return 0; }
             rm -rf "build/$tfn"; mkdir -p "build/$tfn"
+            pip install -q --target "build/$tfn" pydantic jsonschema
             cp -a "$src"/. "build/$tfn/"
             [ -d src ] && cp -a src "build/$tfn/" || true
             [ -d contracts ] && cp -a contracts "build/$tfn/" || true

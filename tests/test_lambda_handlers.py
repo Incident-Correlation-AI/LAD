@@ -70,7 +70,7 @@ def mock_aws_infra(aws_env):
         yield {"store": ingest_mod._store, "queue": ingest_mod._queue}
 
 
-def test_authorizer_handler():
+def test_authorizer_handler(aws_env):
     # Collector token on batch route
     res = authorizer_handler(
         {
