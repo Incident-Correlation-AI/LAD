@@ -36,7 +36,8 @@ function readEnvValue(key: string): string {
 }
 
 export default defineConfig(() => {
-  const apiTarget = process.env.LAD_API_TARGET ?? "http://127.0.0.1:8080";
+  const apiTarget =
+    process.env.LAD_API_TARGET || readEnvValue("LAD_API_TARGET") || "http://127.0.0.1:8080";
   const adminToken = process.env.LAD_ADMIN_TOKEN ?? readEnvValue("LAD_ADMIN_TOKEN");
 
   if (!adminToken) {
