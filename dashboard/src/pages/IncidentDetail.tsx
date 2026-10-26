@@ -234,16 +234,22 @@ export function IncidentDetail() {
         <Grid size={{ xs: 12, md: 5 }}>
           <Section title="Affected entities">
             <Stack spacing={1.25} mb={2.5}>
-              {incident.affected_entities.map((entity) => (
-                <Box key={`${entity.host}-${entity.service ?? ""}-${entity.source ?? ""}`}>
-                  <Typography variant="body2" sx={{ fontWeight: 700 }}>
-                    {entity.host}
-                  </Typography>
-                  <Typography variant="caption" sx={{ color: theme.custom.classroomSlate500 }}>
-                    {[entity.service, entity.source].filter(Boolean).join(" · ") || "—"}
-                  </Typography>
-                </Box>
-              ))}
+              {(incident.affected_entities ?? []).length > 0 ? (
+                (incident.affected_entities ?? []).map((entity, idx) => (
+                  <Box key={`${entity.host}-${entity.service ?? ""}-${entity.source ?? ""}-${idx}`}>
+                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                      {entity.host}
+                    </Typography>
+                    <Typography variant="caption" sx={{ color: theme.custom.classroomSlate500 }}>
+                      {[entity.service, entity.source].filter(Boolean).join(" · ") || "—"}
+                    </Typography>
+                  </Box>
+                ))
+              ) : (
+                <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500 }}>
+                  None recorded.
+                </Typography>
+              )}
             </Stack>
 
             <Typography
@@ -266,18 +272,22 @@ export function IncidentDetail() {
 
       <Box mb={2.5}>
         <Section title="Evidence">
-          <EvidencePanel evidence={incident.evidence} />
+          <EvidencePanel
+            evidence={
+              incident.evidence ?? { supporting_event_ids: [], contradicting_event_ids: [] }
+            }
+          />
         </Section>
       </Box>
 
       <Box mb={2.5}>
         <Section
-          title={`Hypotheses (${incident.hypotheses.length})`}
+          title={`Hypotheses (${(incident.hypotheses ?? []).length})`}
           subtitle="Confidence describes how strongly the evidence supports an explanation. It is not a probability, and “unknown” is a valid outcome."
         >
-          {incident.hypotheses.length ? (
+          {(incident.hypotheses ?? []).length ? (
             <Stack spacing={2}>
-              {incident.hypotheses.map((hypothesis, index) => (
+              {(incident.hypotheses ?? []).map((hypothesis, index) => (
                 <HypothesisCard key={`${hypothesis.statement}-${index}`} hypothesis={hypothesis} />
               ))}
             </Stack>
@@ -292,12 +302,12 @@ export function IncidentDetail() {
       <Grid container spacing={2.5}>
         <Grid size={{ xs: 12, md: 7 }}>
           <Section
-            title={`Diagnostic checks (${incident.diagnostic_checks.length})`}
+            title={`Diagnostic checks (${(incident.diagnostic_checks ?? []).length})`}
             subtitle="Recommendations for a human to follow. Nothing here is executed automatically — this product never remediates."
           >
-            {incident.diagnostic_checks.length ? (
+            {(incident.diagnostic_checks ?? []).length ? (
               <Box component="ul" sx={{ m: 0, p: 0, display: "grid", gap: 1.5 }}>
-                {incident.diagnostic_checks.map((check, index) => (
+                {(incident.diagnostic_checks ?? []).map((check, index) => (
                   <DiagnosticCheckItem key={`${check.instruction}-${index}`} check={check} />
                 ))}
               </Box>

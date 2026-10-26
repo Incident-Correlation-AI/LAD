@@ -39,7 +39,7 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
             Supporting
           </Typography>
           <Typography sx={{ fontWeight: 700, color: theme.custom.campusGreen600 }}>
-            {hypothesis.supporting_event_ids.length}
+            {(hypothesis.supporting_event_ids ?? []).length}
           </Typography>
         </Box>
         <Box>
@@ -56,7 +56,7 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
             Contradicting
           </Typography>
           <Typography sx={{ fontWeight: 700, color: theme.custom.brickTerracotta500 }}>
-            {hypothesis.contradicting_event_ids.length}
+            {(hypothesis.contradicting_event_ids ?? []).length}
           </Typography>
         </Box>
       </Stack>
@@ -75,9 +75,9 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
       >
         Missing evidence
       </Typography>
-      {hypothesis.missing_evidence.length ? (
+      {(hypothesis.missing_evidence ?? []).length ? (
         <Box component="ul" sx={{ m: 0, pl: 2.5 }}>
-          {hypothesis.missing_evidence.map((item) => (
+          {(hypothesis.missing_evidence ?? []).map((item) => (
             <Typography component="li" variant="body2" key={item} sx={{ mb: 0.25 }}>
               {item}
             </Typography>

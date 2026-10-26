@@ -38,6 +38,29 @@ def _decode_cursor(cursor: str) -> tuple[str, str]:
     return created_at, incident_id
 
 
+def _normalize_incident_doc(doc: dict[str, Any], fallback_id: str = "unknown") -> dict[str, Any]:
+    doc.setdefault(
+        "incident_id",
+        doc.get("sk", "").replace("INCIDENT#", "") or doc.get("incident_id", fallback_id),
+    )
+    doc.setdefault("schema_version", "1.0")
+    doc.setdefault("status", doc.get("status", "open"))
+    doc.setdefault("severity", doc.get("severity", "medium"))
+    doc.setdefault("created_at", doc.get("created_at", "2026-10-22T00:00:00+00:00"))
+    doc.setdefault("updated_at", doc.get("updated_at", doc["created_at"]))
+    doc.setdefault("anomaly_score", 0.0)
+    doc.setdefault("detector", doc.get("detector", "statistical_baseline"))
+    doc.setdefault(
+        "affected_entities",
+        [{"host": doc.get("host", "unknown"), "service": None, "source": None}],
+    )
+    doc.setdefault("evidence", {"supporting_event_ids": [], "contradicting_event_ids": []})
+    doc.setdefault("hypotheses", [])
+    doc.setdefault("diagnostic_checks", [])
+    doc.setdefault("audit", doc.get("audit") or [])
+    return doc
+
+
 class DynamoDBStore:
     """DynamoDB-backed store implementation of StorePort using single-table design."""
 
@@ -119,12 +142,12 @@ class DynamoDBStore:
             return None
         if "doc" in item:
             try:
-                return json.loads(item["doc"])
+                doc = json.loads(item["doc"])
             except Exception:
-                pass
-        doc = dict(item)
-        doc.setdefault("incident_id", incident_id)
-        return doc
+                doc = dict(item)
+        else:
+            doc = dict(item)
+        return _normalize_incident_doc(doc, incident_id)
 
     def list_incidents(
         self,
@@ -166,13 +189,7 @@ class DynamoDBStore:
                     doc = dict(item)
             else:
                 doc = dict(item)
-                doc.setdefault(
-                    "incident_id",
-                    item.get("sk", "").replace("INCIDENT#", "") or item.get("incident_id", "unknown"),
-                )
-                doc.setdefault("status", item.get("status", "open"))
-                doc.setdefault("created_at", item.get("created_at", "2026-10-22T00:00:00+00:00"))
-                doc.setdefault("severity", item.get("severity", "medium"))
+            doc = _normalize_incident_doc(doc)
 
             created_at_val = doc.get("created_at") or "2026-10-22T00:00:00+00:00"
             c_at = _normalize_ts(str(created_at_val))

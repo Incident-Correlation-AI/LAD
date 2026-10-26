@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ApiError, fetchIncidents } from "../api/client";
-import type { IncidentList as IncidentListPayload } from "../api/types";
+import type { Incident, IncidentList as IncidentListPayload } from "../api/types";
 import { IncidentList } from "../pages/IncidentList";
 import { makeIncident, renderWithProviders } from "../test/utils";
 
@@ -159,5 +159,23 @@ describe("IncidentList", () => {
     expect(screen.getAllByText("—").length).toBeGreaterThan(0);
     // The table itself still loads.
     expect(await screen.findByText(/no incidents match these filters/i)).toBeInTheDocument();
+  });
+
+  it("renders legacy incidents missing affected_entities without crashing", async () => {
+    const legacyIncident = {
+      incident_id: "legacy_inc_1",
+      schema_version: "1.0",
+      status: "open",
+      severity: "high",
+      anomaly_score: 0.0,
+      detector: "statistical_baseline_mock",
+      created_at: "2026-10-21T22:45:02.493758+00:00",
+      updated_at: "2026-10-21T22:45:02.493758+00:00",
+    } as unknown as Incident;
+
+    mockListPages([{ items: [legacyIncident], next_cursor: null }]);
+    renderWithProviders(<IncidentList />);
+
+    expect(await screen.findByText("legacy_inc_1")).toBeInTheDocument();
   });
 });

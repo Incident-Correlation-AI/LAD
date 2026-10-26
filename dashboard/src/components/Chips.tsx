@@ -23,6 +23,8 @@ export function severityColor(severity: IncidentSeverity, theme: Theme): string 
       return theme.custom.torchGold600;
     case "low":
       return theme.custom.nileBlue500;
+    default:
+      return theme.custom.classroomSlate500;
   }
 }
 
@@ -34,6 +36,8 @@ export function statusColor(status: IncidentStatus, theme: Theme): string {
       return theme.custom.torchGold600;
     case "resolved":
       return theme.custom.campusGreen600;
+    default:
+      return theme.custom.classroomSlate500;
   }
 }
 

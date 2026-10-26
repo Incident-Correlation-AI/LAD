@@ -115,7 +115,7 @@ export function ApiErrorState({ error, retry }: { error: unknown; retry?: () => 
       message={
         <>
           {error instanceof Error ? error.message : String(error)}
-          {apiError?.details.length ? (
+          {apiError?.details?.length ? (
             <Box component="ul" sx={{ textAlign: "left", mt: 1.5, pl: 2.5, fontSize: "0.8rem" }}>
               {apiError.details.slice(0, 4).map((detail) => (
                 <li key={`${detail.field}-${detail.reason}`}>

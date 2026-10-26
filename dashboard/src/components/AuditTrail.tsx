@@ -21,9 +21,18 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
         ? theme.custom.errorRed500
         : theme.custom.torchGold600;
 
+  const list = entries ?? [];
+  if (!list.length) {
+    return (
+      <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500, fontStyle: "italic" }}>
+        No audit activity recorded yet.
+      </Typography>
+    );
+  }
+
   return (
     <Box component="ol" sx={{ m: 0, p: 0, listStyle: "none" }}>
-      {entries.map((entry, index) => (
+      {list.map((entry, index) => (
         <Stack component="li" key={`${entry.at}-${entry.action}-${index}`} direction="row" gap={1.5} mb={1.5}>
           <Box
             sx={{
@@ -62,7 +71,8 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
 export function WindowTimeline({ windows }: { windows: IncidentWindow[] }) {
   const theme = useTheme();
 
-  if (!windows.length) {
+  const list = windows ?? [];
+  if (!list.length) {
     return (
       <Typography variant="body2" sx={{ color: theme.custom.classroomSlate400, fontStyle: "italic" }}>
         No observation window recorded.
@@ -72,7 +82,7 @@ export function WindowTimeline({ windows }: { windows: IncidentWindow[] }) {
 
   return (
     <Box component="ul" sx={{ m: 0, p: 0, listStyle: "none" }}>
-      {windows.map((window) => (
+      {list.map((window) => (
         <Stack component="li" key={`${window.start}-${window.end}`} direction="row" gap={1.5} mb={1.25}>
           <Box
             sx={{

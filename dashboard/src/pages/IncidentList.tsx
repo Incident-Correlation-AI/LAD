@@ -357,24 +357,33 @@ export function IncidentList() {
                       </Typography>
                     </TableCell>
                     <TableCell>
-                      {incident.affected_entities.map((entity) => (
+                      {(incident.affected_entities ?? []).length > 0 ? (
+                        (incident.affected_entities ?? []).map((entity, idx) => (
+                          <Typography
+                            key={`${entity.host}-${entity.service ?? ""}-${idx}`}
+                            variant="body2"
+                            sx={{ fontSize: "0.8rem" }}
+                          >
+                            {entity.host}
+                            {entity.service ? (
+                              <Box
+                                component="span"
+                                sx={{ color: theme.custom.classroomSlate400 }}
+                              >
+                                {" "}
+                                / {entity.service}
+                              </Box>
+                            ) : null}
+                          </Typography>
+                        ))
+                      ) : (
                         <Typography
-                          key={`${entity.host}-${entity.service ?? ""}`}
                           variant="body2"
-                          sx={{ fontSize: "0.8rem" }}
+                          sx={{ fontSize: "0.8rem", color: theme.custom.classroomSlate400 }}
                         >
-                          {entity.host}
-                          {entity.service ? (
-                            <Box
-                              component="span"
-                              sx={{ color: theme.custom.classroomSlate400 }}
-                            >
-                              {" "}
-                              / {entity.service}
-                            </Box>
-                          ) : null}
+                          —
                         </Typography>
-                      ))}
+                      )}
                     </TableCell>
                     <TableCell>
                       <Typography sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}>

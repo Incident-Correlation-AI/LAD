@@ -35,7 +35,8 @@ function Group({
 
 function IdList({ ids }: { ids: string[] }) {
   const theme = useTheme();
-  if (!ids.length) {
+  const list = ids ?? [];
+  if (!list.length) {
     return (
       <Typography variant="body2" sx={{ color: theme.custom.classroomSlate400, fontStyle: "italic" }}>
         None recorded.
@@ -44,7 +45,7 @@ function IdList({ ids }: { ids: string[] }) {
   }
   return (
     <List dense disablePadding>
-      {ids.map((id) => (
+      {list.map((id) => (
         <ListItem
           key={id}
           sx={{
