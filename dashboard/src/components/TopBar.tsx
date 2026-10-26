@@ -67,11 +67,12 @@ export function TopBar() {
 
         <Chip
           size="small"
-          label="local mode"
+          label={import.meta.env.VITE_APP_ENV || "aws cloud (eu-north-1)"}
           sx={{
             bgcolor: theme.custom.campusGreen100,
             color: theme.custom.campusGreen700,
             fontSize: "0.72rem",
+            fontWeight: 600,
           }}
         />
       </Box>

@@ -387,7 +387,7 @@ export function IncidentList() {
                     </TableCell>
                     <TableCell>
                       <Typography sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
-                        {incident.detector}
+                        {incident.detector || "—"}
                       </Typography>
                     </TableCell>
                     <TableCell align="right">

@@ -36,8 +36,11 @@ export function formatRelative(iso: string, now: Date = new Date()): string {
  * z-score). It is deliberately NOT expressed as a percentage or probability,
  * because that would be a factual error.
  */
-export function formatAnomalyScore(score: number): string {
-  return Number.isFinite(score) ? score.toFixed(2) : String(score);
+export function formatAnomalyScore(score?: number | null): string {
+  if (score == null || typeof score !== "number" || !Number.isFinite(score)) {
+    return "—";
+  }
+  return score.toFixed(2);
 }
 
 export function pluralize(count: number, singular: string, plural = `${singular}s`): string {
