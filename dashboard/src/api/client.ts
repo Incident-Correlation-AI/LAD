@@ -38,7 +38,13 @@ export class ApiError extends Error {
   }
 }
 
-const BASE = import.meta.env.VITE_API_BASE_URL ?? "";
+/**
+ * In all environments (local Vite proxy and Vercel edge proxy), requests
+ * use the same-origin relative path `/api/...`. This ensures requests are never
+ * made cross-origin directly from the browser, which would leak credentials or
+ * trigger CORS issues.
+ */
+const BASE = "";
 
 function parseDetails(value: unknown): ApiErrorDetail[] {
   if (!Array.isArray(value)) return [];
