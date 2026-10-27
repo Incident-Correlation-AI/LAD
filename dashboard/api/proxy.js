@@ -9,7 +9,23 @@ export default async function handler(request) {
   const token = process.env.LAD_ADMIN_TOKEN;
 
   const url = new URL(request.url);
-  const upstreamUrl = `${target}${url.pathname}${url.search}`;
+  const matchedPath =
+    request.headers.get("x-matched-path") ||
+    request.headers.get("x-invoke-path");
+  const pathParam = url.searchParams.get("path");
+
+  let targetPath = url.pathname;
+  if (targetPath === "/api/proxy" || targetPath.endsWith("/proxy")) {
+    if (matchedPath && matchedPath !== "/api/proxy") {
+      targetPath = matchedPath;
+    } else if (pathParam) {
+      targetPath = `/api/${pathParam}`;
+      url.searchParams.delete("path");
+    }
+  }
+
+  const search = url.searchParams.toString() ? `?${url.searchParams.toString()}` : "";
+  const upstreamUrl = `${target}${targetPath}${search}`;
 
   const headers = new Headers(request.headers);
   headers.set("host", new URL(target).host);
