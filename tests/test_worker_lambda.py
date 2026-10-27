@@ -7,6 +7,8 @@ import boto3
 import pytest
 from moto import mock_aws
 
+pytest.importorskip("anomaly_detector")
+
 import services.worker.lambda_function as worker_mod
 from lad.adapters.aws.store_dynamodb import DynamoDBStore
 

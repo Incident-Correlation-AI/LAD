@@ -16,32 +16,56 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 
-from anomaly_detector.correlation import (
-    CorrelationConfig,
-    EvidenceCorrelationPipeline,
-    WindowEvidence,
-)
-from anomaly_detector.inference.contract import (
-    CONTRACT_VERSION,
-    FeatureWindowRequest,
-    InferenceResult,
-    InferenceStatus,
-    ReasonCode,
-)
-from anomaly_detector.inference.detector import AnomalyDetector, load_detector
-from anomaly_detector.network.baseline import (
-    RuleConfig,
-)
-from anomaly_detector.network.baseline import (
-    score_window as score_baseline,
-)
-from anomaly_detector.network.features import (
-    NETWORK_FEATURE_SCHEMA_VERSION,
-    NetworkWindow,
-    build_network_windows,
-)
-from anomaly_detector.network.inference import NetworkDetector, load_network_detector
-from anomaly_detector.network.lad_adapter import LadParseOptions, parse_lad_events
+try:
+    from anomaly_detector.correlation import (
+        CorrelationConfig,
+        EvidenceCorrelationPipeline,
+        WindowEvidence,
+    )
+    from anomaly_detector.inference.contract import (
+        CONTRACT_VERSION,
+        FeatureWindowRequest,
+        InferenceResult,
+        InferenceStatus,
+        ReasonCode,
+    )
+    from anomaly_detector.inference.detector import AnomalyDetector, load_detector
+    from anomaly_detector.network.baseline import (
+        RuleConfig,
+    )
+    from anomaly_detector.network.baseline import (
+        score_window as score_baseline,
+    )
+    from anomaly_detector.network.features import (
+        NETWORK_FEATURE_SCHEMA_VERSION,
+        NetworkWindow,
+        build_network_windows,
+    )
+    from anomaly_detector.network.inference import NetworkDetector, load_network_detector
+    from anomaly_detector.network.lad_adapter import LadParseOptions, parse_lad_events
+
+    HAVE_ANOMALY_DETECTOR = True
+except (ImportError, ModuleNotFoundError):
+    HAVE_ANOMALY_DETECTOR = False
+    CorrelationConfig = None  # type: ignore[misc,assignment]
+    EvidenceCorrelationPipeline = None  # type: ignore[misc,assignment]
+    WindowEvidence = None  # type: ignore[misc,assignment]
+    CONTRACT_VERSION = "1.0"
+    FeatureWindowRequest = None  # type: ignore[misc,assignment]
+    InferenceResult = None  # type: ignore[misc,assignment]
+    InferenceStatus = None  # type: ignore[misc,assignment]
+    ReasonCode = None  # type: ignore[misc,assignment]
+    AnomalyDetector = None  # type: ignore[misc,assignment]
+    load_detector = None  # type: ignore[misc,assignment]
+    RuleConfig = None  # type: ignore[misc,assignment]
+    score_baseline = None  # type: ignore[misc,assignment]
+    NETWORK_FEATURE_SCHEMA_VERSION = "network-features-v1"
+    NetworkWindow = None  # type: ignore[misc,assignment]
+    build_network_windows = None  # type: ignore[misc,assignment]
+    NetworkDetector = None  # type: ignore[misc,assignment]
+    load_network_detector = None  # type: ignore[misc,assignment]
+    LadParseOptions = None  # type: ignore[misc,assignment]
+    parse_lad_events = None  # type: ignore[misc,assignment]
 
 logger = logging.getLogger(__name__)
 
@@ -146,6 +170,11 @@ class AnomalyDetectionEngine:
         manifest_path: str | None = None,
         rules: RuleConfig | None = None,
     ) -> None:
+        if not HAVE_ANOMALY_DETECTOR:
+            raise RuntimeError(
+                "AnomalyDetectionEngine requires the 'anomaly_detector' package from AI-Part. "
+                "Ensure AI-Part is installed or present in sys.path."
+            )
         self.rules = rules or RuleConfig(
             http_5xx_min_requests=int(os.environ.get("LAD_RULE_5XX_MIN_REQUESTS", "5")),
             http_5xx_min_count=int(os.environ.get("LAD_RULE_5XX_MIN_COUNT", "3")),

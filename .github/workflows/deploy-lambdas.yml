@@ -19,6 +19,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout AI-Part
+        uses: actions/checkout@v4
+        with:
+          repository: Incident-Correlation-AI/AI-Part
+          path: AI-Part
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
@@ -26,6 +31,7 @@ jobs:
         run: |
           pip install --upgrade pip
           pip install -e ".[dev]" boto3 moto
+          pip install -e ./AI-Part
       - name: Run test suite
         run: |
           python -m pytest -q
@@ -37,6 +43,11 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - name: Checkout AI-Part
+        uses: actions/checkout@v4
+        with:
+          repository: Incident-Correlation-AI/AI-Part
+          path: AI-Part
 
       - name: Configure AWS credentials (gh-deploy)
         uses: aws-actions/configure-aws-credentials@v4
@@ -59,6 +70,9 @@ jobs:
             cp -a "$src"/. "build/$tfn/"
             [ -d src ] && cp -a src "build/$tfn/" || true
             [ -d contracts ] && cp -a contracts "build/$tfn/" || true
+            if [ "$tfn" = "IncidentWorkerFn" ] && [ -d "AI-Part/src/anomaly_detector" ]; then
+              cp -a AI-Part/src/anomaly_detector "build/$tfn/"
+            fi
             find "build/$tfn" -name '__pycache__' -type d -exec rm -rf {} + 2>/dev/null || true
             (cd "build/$tfn" && zip -qr "../$tfn.zip" .)
             echo "built $tfn.zip from $src"
