@@ -41,9 +41,7 @@ class SQSQueue:
                 body = msg.decode("utf-8") if isinstance(msg, (bytes, bytearray)) else str(msg)
                 entries.append({"Id": str(idx), "MessageBody": body})
 
-            response = self.client.send_message_batch(
-                QueueUrl=self.queue_url, Entries=entries
-            )
+            response = self.client.send_message_batch(QueueUrl=self.queue_url, Entries=entries)
             failed = response.get("Failed", [])
             if failed:
                 first = failed[0]
@@ -80,9 +78,7 @@ class SQSQueue:
         """Delete message from SQS upon successful processing."""
         entry = self._cache.pop(handle.token, None)
         receipt_handle = entry[0] if entry else handle.token
-        self.client.delete_message(
-            QueueUrl=self.queue_url, ReceiptHandle=receipt_handle
-        )
+        self.client.delete_message(QueueUrl=self.queue_url, ReceiptHandle=receipt_handle)
 
     def nack(self, handle: Handle, *, retryable: bool) -> None:
         """Handle failure: make visible immediately if retryable, or push to DLQ if non-retryable."""

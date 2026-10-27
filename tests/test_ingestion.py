@@ -21,9 +21,7 @@ INVALID_EVENT_REASONS = {
 
 
 def test_valid_batch_is_accepted_and_queued(client, auth, queue, valid_event):
-    response = client.post(
-        "/api/v1/events/batch", json={"events": [valid_event]}, headers=auth
-    )
+    response = client.post("/api/v1/events/batch", json={"events": [valid_event]}, headers=auth)
     assert response.status_code == 202
     body = response.json()
     assert body["accepted"] == 1
@@ -46,18 +44,14 @@ def test_valid_batch_is_accepted_and_queued(client, auth, queue, valid_event):
 )
 def test_every_valid_fixture_is_accepted(client, auth, fixture_name):
     event = load_fixture(fixture_name)
-    response = client.post(
-        "/api/v1/events/batch", json={"events": [event]}, headers=auth
-    )
+    response = client.post("/api/v1/events/batch", json={"events": [event]}, headers=auth)
     assert response.status_code == 202, response.text
     assert response.json()["accepted"] == 1
 
 
 def test_unknown_optional_fields_are_preserved(client, auth, queue):
     event = load_fixture("unknown_optional_field.json")
-    response = client.post(
-        "/api/v1/events/batch", json={"events": [event]}, headers=auth
-    )
+    response = client.post("/api/v1/events/batch", json={"events": [event]}, headers=auth)
     assert response.status_code == 202
     queued = json.loads(queue.messages[0])
     assert queued == event
@@ -81,20 +75,14 @@ def test_partial_acceptance_does_not_drop_valid_events(client, auth, queue, vali
     assert body["results"][1]["reason"] == "invalid_enum"
     assert len(queue.messages) == 1
 
-    addendum = client.post(
-        "/api/v1/events/batch", json={"events": [invalid]}, headers=auth
-    )
+    addendum = client.post("/api/v1/events/batch", json={"events": [invalid]}, headers=auth)
     assert addendum.json()["accepted"] == 0
 
 
 @pytest.mark.parametrize("fixture_name, reason", INVALID_EVENT_REASONS.items())
-def test_invalid_event_fixtures_are_rejected_with_reason(
-    client, auth, fixture_name, reason
-):
+def test_invalid_event_fixtures_are_rejected_with_reason(client, auth, fixture_name, reason):
     event = load_fixture(fixture_name, "invalid")
-    response = client.post(
-        "/api/v1/events/batch", json={"events": [event]}, headers=auth
-    )
+    response = client.post("/api/v1/events/batch", json={"events": [event]}, headers=auth)
     assert response.status_code == 202, response.text
     body = response.json()
     assert body["accepted"] == 0
@@ -112,12 +100,8 @@ def test_non_object_event_is_rejected_but_batch_succeeds(client, auth):
 
 
 def test_duplicate_event_is_idempotent(client, auth, queue, valid_event):
-    first = client.post(
-        "/api/v1/events/batch", json={"events": [valid_event]}, headers=auth
-    )
-    second = client.post(
-        "/api/v1/events/batch", json={"events": [valid_event]}, headers=auth
-    )
+    first = client.post("/api/v1/events/batch", json={"events": [valid_event]}, headers=auth)
+    second = client.post("/api/v1/events/batch", json={"events": [valid_event]}, headers=auth)
     assert first.status_code == second.status_code == 202
     assert second.json()["accepted"] == 1
     assert second.json()["results"][0]["detail"] == "already accepted"
@@ -137,9 +121,7 @@ def test_wrapper_rejects_unexpected_properties(client, auth, assert_api_error, v
         headers=auth,
     )
     error = assert_api_error(response, 422, "validation_failed")
-    assert error["details"] == [
-        {"field": "extra", "reason": "unexpected property"}
-    ]
+    assert error["details"] == [{"field": "extra", "reason": "unexpected property"}]
 
 
 def test_malformed_json_is_400(client, auth, assert_api_error):
@@ -163,9 +145,7 @@ def test_too_many_events_is_413(client, auth, assert_api_error, valid_event):
         copy = dict(valid_event)
         copy["event_id"] = str(uuid.uuid4())
         events.append(copy)
-    response = client.post(
-        "/api/v1/events/batch", json={"events": events}, headers=auth
-    )
+    response = client.post("/api/v1/events/batch", json={"events": events}, headers=auth)
     assert_api_error(response, 413, "payload_too_large")
 
 
@@ -198,17 +178,13 @@ def test_queue_failure_releases_dedupe_claims(
 ):
     app.state.queue = _FailingQueue()
     assert_api_error(
-        client.post(
-            "/api/v1/events/batch", json={"events": [valid_event]}, headers=auth
-        ),
+        client.post("/api/v1/events/batch", json={"events": [valid_event]}, headers=auth),
         503,
         "dependency_unavailable",
     )
 
     app.state.queue = queue
-    retry = client.post(
-        "/api/v1/events/batch", json={"events": [valid_event]}, headers=auth
-    )
+    retry = client.post("/api/v1/events/batch", json={"events": [valid_event]}, headers=auth)
     assert retry.status_code == 202
     assert retry.json()["results"][0]["status"] == "accepted"
     assert "detail" not in retry.json()["results"][0]

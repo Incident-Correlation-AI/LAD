@@ -10,11 +10,13 @@ from tests.conftest import CONTRACTS
 
 SCHEMA_NAMES = ["event.schema.json", "incident.schema.json", "api-errors.schema.json"]
 VALID_FIXTURES = sorted(
-    p for p in (CONTRACTS / "fixtures" / "valid").glob("*.json")
+    p
+    for p in (CONTRACTS / "fixtures" / "valid").glob("*.json")
     if not p.name.endswith(".meta.json")
 )
 INVALID_FIXTURES = sorted(
-    p for p in (CONTRACTS / "fixtures" / "invalid").glob("*.json")
+    p
+    for p in (CONTRACTS / "fixtures" / "invalid").glob("*.json")
     if not p.name.endswith(".meta.json")
 )
 

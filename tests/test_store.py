@@ -41,6 +41,4 @@ def test_update_status_returns_none_for_unknown_incident(store: SQLiteStore):
 
 def test_update_status_rejects_unknown_action(store: SQLiteStore):
     with pytest.raises(ValueError):
-        store.update_status(
-            "inc-1", "reopened", actor="admin", at="2026-10-22T10:00:00+00:00"
-        )
+        store.update_status("inc-1", "reopened", actor="admin", at="2026-10-22T10:00:00+00:00")

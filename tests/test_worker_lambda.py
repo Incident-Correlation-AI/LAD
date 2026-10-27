@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
+
 import boto3
 import pytest
 from moto import mock_aws

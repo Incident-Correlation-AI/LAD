@@ -134,9 +134,7 @@ class DynamoDBStore:
 
     def get_incident(self, incident_id: str) -> dict[str, Any] | None:
         """Fetch an incident by its ID."""
-        response = self.table.get_item(
-            Key={"pk": "INCIDENT", "sk": f"INCIDENT#{incident_id}"}
-        )
+        response = self.table.get_item(Key={"pk": "INCIDENT", "sk": f"INCIDENT#{incident_id}"})
         item = response.get("Item")
         if not item:
             return None
@@ -217,9 +215,7 @@ class DynamoDBStore:
         if cursor:
             c_time, c_id = _decode_cursor(cursor)
             parsed_records = [
-                r
-                for r in parsed_records
-                if (r[0] < c_time or (r[0] == c_time and r[1] < c_id))
+                r for r in parsed_records if (r[0] < c_time or (r[0] == c_time and r[1] < c_id))
             ]
 
         results = [doc for _, _, doc in parsed_records[:limit]]
@@ -242,9 +238,8 @@ class DynamoDBStore:
             return None
 
         current = incident["status"]
-        unchanged = (
-            (action == "acknowledged" and current != "open")
-            or (action == "resolved" and current == "resolved")
+        unchanged = (action == "acknowledged" and current != "open") or (
+            action == "resolved" and current == "resolved"
         )
         if unchanged:
             return incident

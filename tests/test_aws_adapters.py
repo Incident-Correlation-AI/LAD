@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import json
-import pytest
+
 import boto3
+import pytest
 from moto import mock_aws
 
 from lad.adapters.aws.queue_sqs import SQSQueue
@@ -170,4 +171,3 @@ def test_dynamodb_legacy_item_handling(mock_dynamodb):
     )
     assert updated is not None
     assert updated["status"] == "acknowledged"
-

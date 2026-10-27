@@ -96,9 +96,7 @@ class SQLiteStore:
     def claim_event_id(self, event_id: str, ttl_seconds: int) -> bool:
         now = time.time()
         with self._lock, self._conn:
-            self._conn.execute(
-                "DELETE FROM processed_events WHERE expires_at < ?", (now,)
-            )
+            self._conn.execute("DELETE FROM processed_events WHERE expires_at < ?", (now,))
             cursor = self._conn.execute(
                 "INSERT OR IGNORE INTO processed_events(event_id, seen_at, expires_at) VALUES (?, ?, ?)",
                 (event_id, now, now + ttl_seconds),
@@ -107,9 +105,7 @@ class SQLiteStore:
 
     def release_event_id(self, event_id: str) -> None:
         with self._lock, self._conn:
-            self._conn.execute(
-                "DELETE FROM processed_events WHERE event_id = ?", (event_id,)
-            )
+            self._conn.execute("DELETE FROM processed_events WHERE event_id = ?", (event_id,))
 
     # -- incidents --------------------------------------------------------
     def put_incident(self, incident: dict[str, Any]) -> None:
@@ -180,9 +176,7 @@ class SQLiteStore:
             params.append(host)
         if cursor:
             created_at, incident_id = _decode_cursor(cursor)
-            clauses.append(
-                "(created_at < ? OR (created_at = ? AND incident_id < ?))"
-            )
+            clauses.append("(created_at < ? OR (created_at = ? AND incident_id < ?))")
             params.extend([created_at, created_at, incident_id])
 
         sql = "SELECT created_at, doc FROM incidents"
@@ -222,9 +216,8 @@ class SQLiteStore:
             # - acknowledge on acknowledged/resolved: unchanged
             # - resolve on resolved: unchanged
             # - resolve on open/acknowledged: allowed
-            unchanged = (
-                (action == "acknowledged" and current != "open")
-                or (action == "resolved" and current == "resolved")
+            unchanged = (action == "acknowledged" and current != "open") or (
+                action == "resolved" and current == "resolved"
             )
             if unchanged:
                 return incident

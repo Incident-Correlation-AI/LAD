@@ -16,9 +16,7 @@ def test_get_incident(client, store, admin_auth, incident_factory):
     assert response.json() == incident
 
 
-def test_list_filters_by_status_severity_and_host(
-    client, store, admin_auth, incident_factory
-):
+def test_list_filters_by_status_severity_and_host(client, store, admin_auth, incident_factory):
     seed(store, incident_factory, incident_id="a", status="open", severity="high")
     seed(
         store,
@@ -30,19 +28,13 @@ def test_list_filters_by_status_severity_and_host(
     )
     seed(store, incident_factory, incident_id="c", status="open", severity="low")
 
-    body = client.get(
-        "/api/v1/incidents?status=open", headers=admin_auth
-    ).json()
+    body = client.get("/api/v1/incidents?status=open", headers=admin_auth).json()
     assert {item["incident_id"] for item in body["items"]} == {"a", "c"}
 
-    body = client.get(
-        "/api/v1/incidents?status=open&severity=low", headers=admin_auth
-    ).json()
+    body = client.get("/api/v1/incidents?status=open&severity=low", headers=admin_auth).json()
     assert [item["incident_id"] for item in body["items"]] == ["c"]
 
-    body = client.get(
-        "/api/v1/incidents?host=db-01", headers=admin_auth
-    ).json()
+    body = client.get("/api/v1/incidents?host=db-01", headers=admin_auth).json()
     assert [item["incident_id"] for item in body["items"]] == ["b"]
 
 
@@ -51,8 +43,7 @@ def test_list_filters_by_time_window(client, store, admin_auth, incident_factory
     seed(store, incident_factory, incident_id="late", created_at="2026-10-22T12:00:00+00:00")
 
     body = client.get(
-        "/api/v1/incidents"
-        "?time_from=2026-10-22T10:00:00Z&time_to=2026-10-22T13:00:00Z",
+        "/api/v1/incidents?time_from=2026-10-22T10:00:00Z&time_to=2026-10-22T13:00:00Z",
         headers=admin_auth,
     ).json()
     assert [item["incident_id"] for item in body["items"]] == ["late"]
@@ -170,9 +161,7 @@ def test_acknowledge_after_resolve_is_noop(client, store, admin_auth, incident_f
     assert body["audit"] == []
 
 
-def test_lifecycle_on_missing_incident_is_404(
-    client, admin_auth, assert_api_error
-):
+def test_lifecycle_on_missing_incident_is_404(client, admin_auth, assert_api_error):
     assert_api_error(
         client.post("/api/v1/incidents/nope/acknowledge", headers=admin_auth),
         404,

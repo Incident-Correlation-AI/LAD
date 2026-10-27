@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import json
-import pytest
+
 import boto3
+import pytest
 from moto import mock_aws
 
 from services.api.authorizer.lambda_function import lambda_handler as authorizer_handler
-from services.api.ingest.lambda_function import lambda_handler as ingest_handler
 from services.api.incidents.lambda_function import lambda_handler as incidents_handler
+from services.api.ingest.lambda_function import lambda_handler as ingest_handler
 from tests.conftest import load_fixture
 
 
@@ -17,7 +18,9 @@ def aws_env(monkeypatch):
     monkeypatch.setenv("AWS_REGION", "eu-north-1")
     monkeypatch.setenv("AWS_ACCESS_KEY_ID", "testing")
     monkeypatch.setenv("AWS_SECRET_ACCESS_KEY", "testing")
-    monkeypatch.setenv("MAIN_QUEUE_URL", "https://sqs.eu-north-1.amazonaws.com/123/IncidentMainQueue")
+    monkeypatch.setenv(
+        "MAIN_QUEUE_URL", "https://sqs.eu-north-1.amazonaws.com/123/IncidentMainQueue"
+    )
     monkeypatch.setenv("INCIDENT_TABLE", "IncidentTable")
     monkeypatch.setenv("COLLECTOR_TOKEN", "mock-collector-token")
     monkeypatch.setenv("ADMIN_TOKEN", "mock-admin-token")
@@ -61,10 +64,12 @@ def mock_aws_infra(aws_env):
         import services.api.ingest.lambda_function as ingest_mod
         from lad.adapters.aws.queue_sqs import SQSQueue
         from lad.adapters.aws.store_dynamodb import DynamoDBStore
+
         ingest_mod._store = DynamoDBStore(table_name="IncidentTable")
         ingest_mod._queue = SQSQueue(queue_url=queue_url)
 
         import services.api.incidents.lambda_function as incidents_mod
+
         incidents_mod._store = DynamoDBStore(table_name="IncidentTable")
 
         yield {"store": ingest_mod._store, "queue": ingest_mod._queue}
@@ -165,7 +170,9 @@ def test_incidents_lambda_handler(mock_aws_infra, incident_factory):
     ack_event = {
         "rawPath": "/api/v1/incidents/inc-lambda-1/acknowledge",
         "pathParameters": {"incident_id": "inc-lambda-1"},
-        "requestContext": {"http": {"method": "POST", "path": "/api/v1/incidents/inc-lambda-1/acknowledge"}},
+        "requestContext": {
+            "http": {"method": "POST", "path": "/api/v1/incidents/inc-lambda-1/acknowledge"}
+        },
     }
     resp = incidents_handler(ack_event, None)
     assert resp["statusCode"] == 200
@@ -175,7 +182,9 @@ def test_incidents_lambda_handler(mock_aws_infra, incident_factory):
     resolve_event = {
         "rawPath": "/api/v1/incidents/inc-lambda-1/resolve",
         "pathParameters": {"incident_id": "inc-lambda-1"},
-        "requestContext": {"http": {"method": "POST", "path": "/api/v1/incidents/inc-lambda-1/resolve"}},
+        "requestContext": {
+            "http": {"method": "POST", "path": "/api/v1/incidents/inc-lambda-1/resolve"}
+        },
     }
     resp = incidents_handler(resolve_event, None)
     assert resp["statusCode"] == 200

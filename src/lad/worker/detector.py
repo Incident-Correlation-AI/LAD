@@ -7,6 +7,7 @@ Connects incoming raw event envelopes to AI-Part:
 4. Evidence Assembly (maps window -> supporting event_ids)
 5. Evidence Correlation & Incident Drafting (EvidenceCorrelationPipeline)
 """
+
 from __future__ import annotations
 
 import logging
@@ -22,12 +23,16 @@ from anomaly_detector.correlation import (
 )
 from anomaly_detector.inference.contract import (
     CONTRACT_VERSION,
+    FeatureWindowRequest,
     InferenceResult,
     InferenceStatus,
     ReasonCode,
 )
+from anomaly_detector.inference.detector import AnomalyDetector, load_detector
 from anomaly_detector.network.baseline import (
     RuleConfig,
+)
+from anomaly_detector.network.baseline import (
     score_window as score_baseline,
 )
 from anomaly_detector.network.features import (
@@ -35,6 +40,7 @@ from anomaly_detector.network.features import (
     NetworkWindow,
     build_network_windows,
 )
+from anomaly_detector.network.inference import NetworkDetector, load_network_detector
 from anomaly_detector.network.lad_adapter import LadParseOptions, parse_lad_events
 
 logger = logging.getLogger(__name__)
@@ -107,7 +113,7 @@ def build_evidence(
 
     evidence_map: dict[str, WindowEvidence] = {}
     for res in results:
-        if res.status is not InferenceStatus.SCORED or not res.is_anomaly:
+        if res.status is not InferenceStatus.SCORED or not res.is_anomaly or res.window_id is None:
             continue
         start = _parse_ts(res.window_start)
         end = _parse_ts(res.window_end)
@@ -147,7 +153,7 @@ class AnomalyDetectionEngine:
             auth_min_failures=int(os.environ.get("LAD_RULE_AUTH_MIN_FAILURES", "4")),
             db_min_events=int(os.environ.get("LAD_RULE_DB_MIN_EVENTS", "4")),
         )
-        self.detector = None
+        self.detector: AnomalyDetector | NetworkDetector | None = None
         self.detector_kind: str | None = None
 
         ai_part_root = Path(__file__).resolve().parents[4] / "AI-Part"
@@ -179,7 +185,6 @@ class AnomalyDetectionEngine:
             if os.path.exists(m_path) and os.path.exists(man_path):
                 # 1. Try loading via AnomalyDetector (colleague's Kaggle-tuned model)
                 try:
-                    from anomaly_detector.inference.detector import load_detector
                     self.detector = load_detector(m_path, man_path)
                     self.detector_kind = "baseline"
                     logger.info("Loaded AnomalyDetector (colleague model) from %s", m_path)
@@ -189,7 +194,6 @@ class AnomalyDetectionEngine:
 
                 # 2. Try loading via NetworkDetector
                 try:
-                    from anomaly_detector.network.inference import load_network_detector
                     self.detector = load_network_detector(
                         model_path=m_path,
                         manifest_path=man_path,
@@ -211,10 +215,9 @@ class AnomalyDetectionEngine:
     def score_windows(self, windows: Sequence[NetworkWindow]) -> list[InferenceResult]:
         """Score windows using the trained detector or rule baseline fallback."""
         if self.detector is not None:
-            if self.detector_kind == "network":
+            if isinstance(self.detector, NetworkDetector):
                 return self.detector.score_windows(windows)
-            if self.detector_kind == "baseline":
-                from anomaly_detector.inference.contract import FeatureWindowRequest
+            if isinstance(self.detector, AnomalyDetector):
                 requests = [
                     FeatureWindowRequest(
                         window_id=win.sample_key,
@@ -222,7 +225,10 @@ class AnomalyDetectionEngine:
                         window_end=win.metadata.window_end,
                         host_id=win.metadata.host_id,
                         service_name=win.metadata.service,
-                        features={col: win.features.get(col) for col in self.detector.expected_feature_columns},
+                        features={
+                            col: win.features.get(col)
+                            for col in self.detector.expected_feature_columns
+                        },
                     )
                     for win in windows
                 ]
@@ -230,26 +236,18 @@ class AnomalyDetectionEngine:
                 for res, win in zip(results, windows):
                     if res.status is InferenceStatus.SCORED:
                         decision = score_baseline(win.features, self.rules)
-                        if res.extra is None:
-                            res.extra = {}
                         res.extra.setdefault("network", {})["severity"] = decision.severity
                         res.extra["network"]["baseline"] = decision.to_dict()
-                        res.extra["network"]["evidence_features"] = _build_evidence_features(win.features)
+                        res.extra["network"]["evidence_features"] = _build_evidence_features(
+                            win.features
+                        )
                 return results
 
         # Baseline fallback scoring
         results: list[InferenceResult] = []
         for win in windows:
-            start_str = (
-                win.metadata.window_start.isoformat()
-                if win.metadata.window_start
-                else ""
-            )
-            end_str = (
-                win.metadata.window_end.isoformat()
-                if win.metadata.window_end
-                else ""
-            )
+            start_str = win.metadata.window_start.isoformat() if win.metadata.window_start else ""
+            end_str = win.metadata.window_end.isoformat() if win.metadata.window_end else ""
             event_count = win.features.get("event_count")
             if event_count in (None, 0, 0.0):
                 results.append(

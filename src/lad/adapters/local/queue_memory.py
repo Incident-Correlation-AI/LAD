@@ -18,7 +18,7 @@ class InMemoryQueue:
 
     def send(self, messages: Sequence[bytes]) -> None:
         with self._lock:
-            self.messages.extend(bytes(m) for m in messages)
+            self.messages.extend(messages)
 
     def receive(self, max_messages: int, visibility_timeout_s: int) -> Sequence[Handle]:
         with self._lock:

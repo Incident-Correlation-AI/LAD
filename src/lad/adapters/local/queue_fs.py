@@ -31,7 +31,7 @@ class FileQueue:
                 tmp = self.root / f".{name}.tmp"
                 try:
                     # Atomic publish: a reader never sees a half-written file.
-                    tmp.write_bytes(bytes(message))
+                    tmp.write_bytes(message)
                     os.replace(tmp, self.root / name)
                 finally:
                     tmp.unlink(missing_ok=True)
