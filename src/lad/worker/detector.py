@@ -29,11 +29,8 @@ try:
         InferenceStatus,
         ReasonCode,
     )
-    from anomaly_detector.inference.detector import AnomalyDetector, load_detector
     from anomaly_detector.network.baseline import (
         RuleConfig,
-    )
-    from anomaly_detector.network.baseline import (
         score_window as score_baseline,
     )
     from anomaly_detector.network.features import (
@@ -41,7 +38,6 @@ try:
         NetworkWindow,
         build_network_windows,
     )
-    from anomaly_detector.network.inference import NetworkDetector, load_network_detector
     from anomaly_detector.network.lad_adapter import LadParseOptions, parse_lad_events
 
     HAVE_ANOMALY_DETECTOR = True
@@ -55,17 +51,25 @@ except (ImportError, ModuleNotFoundError):
     InferenceResult = None  # type: ignore[misc,assignment]
     InferenceStatus = None  # type: ignore[misc,assignment]
     ReasonCode = None  # type: ignore[misc,assignment]
-    AnomalyDetector = None  # type: ignore[misc,assignment]
-    load_detector = None  # type: ignore[misc,assignment]
     RuleConfig = None  # type: ignore[misc,assignment]
     score_baseline = None  # type: ignore[misc,assignment]
     NETWORK_FEATURE_SCHEMA_VERSION = "network-features-v1"
     NetworkWindow = None  # type: ignore[misc,assignment]
     build_network_windows = None  # type: ignore[misc,assignment]
-    NetworkDetector = None  # type: ignore[misc,assignment]
-    load_network_detector = None  # type: ignore[misc,assignment]
     LadParseOptions = None  # type: ignore[misc,assignment]
     parse_lad_events = None  # type: ignore[misc,assignment]
+
+try:
+    from anomaly_detector.inference.detector import AnomalyDetector, load_detector
+except (ImportError, ModuleNotFoundError):
+    AnomalyDetector = None  # type: ignore[misc,assignment]
+    load_detector = None  # type: ignore[misc,assignment]
+
+try:
+    from anomaly_detector.network.inference import NetworkDetector, load_network_detector
+except (ImportError, ModuleNotFoundError):
+    NetworkDetector = None  # type: ignore[misc,assignment]
+    load_network_detector = None  # type: ignore[misc,assignment]
 
 logger = logging.getLogger(__name__)
 
