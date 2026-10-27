@@ -41,8 +41,9 @@ line-length = 100
 select = ["E4", "E7", "E9", "F", "I"]
 
 [tool.pyrefly]
-search-path = [".", "src", "../AI-Part/src"]
+search-path = [".", "src"]
 
 [tool.pyright]
-extraPaths = [".", "src", "../AI-Part/src"]
+extraPaths = [".", "src"]
+
 
