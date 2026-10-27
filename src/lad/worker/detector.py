@@ -148,40 +148,56 @@ class AnomalyDetectionEngine:
             db_min_events=int(os.environ.get("LAD_RULE_DB_MIN_EVENTS", "4")),
         )
         self.detector = None
+        self.detector_kind: str | None = None
 
-        # Resolve paths
-        default_model = os.environ.get(
-            "LAD_MODEL_PATH",
-            str(Path(__file__).resolve().parents[4] / "AI-Part/artifacts/network/model/model.joblib"),
-        )
-        default_manifest = os.environ.get(
-            "LAD_MANIFEST_PATH",
-            str(Path(__file__).resolve().parents[4] / "AI-Part/artifacts/network/model/manifest.json"),
-        )
+        ai_part_root = Path(__file__).resolve().parents[4] / "AI-Part"
+        candidate_pairs = [
+            (
+                os.environ.get("LAD_MODEL_PATH")
+                or str(ai_part_root / "artifacts/run_20261026T191658Z/model/model.joblib"),
+                os.environ.get("LAD_MANIFEST_PATH")
+                or str(ai_part_root / "artifacts/run_20261026T191658Z/model/manifest.json"),
+            ),
+            (
+                str(ai_part_root / "artifacts/baseline/model/model.joblib"),
+                str(ai_part_root / "artifacts/baseline/model/manifest.json"),
+            ),
+            (
+                str(ai_part_root / "artifacts/network/model/model.joblib"),
+                str(ai_part_root / "artifacts/network/model/manifest.json"),
+            ),
+        ]
+        if model_path and manifest_path:
+            candidate_pairs.insert(0, (model_path, manifest_path))
 
-        resolved_model = model_path or default_model
-        resolved_manifest = manifest_path or default_manifest
+        for m_path, man_path in candidate_pairs:
+            if os.path.exists(m_path) and os.path.exists(man_path):
+                # 1. Try loading via AnomalyDetector (colleague's Kaggle-tuned model)
+                try:
+                    from anomaly_detector.inference.detector import load_detector
+                    self.detector = load_detector(m_path, man_path)
+                    self.detector_kind = "baseline"
+                    logger.info("Loaded AnomalyDetector (colleague model) from %s", m_path)
+                    break
+                except Exception as exc:
+                    logger.debug("Could not load as baseline AnomalyDetector: %s", exc)
 
-        if os.path.exists(resolved_model) and os.path.exists(resolved_manifest):
-            try:
-                from anomaly_detector.network.inference import load_network_detector
-                self.detector = load_network_detector(
-                    model_path=resolved_model,
-                    manifest_path=resolved_manifest,
-                    rules=self.rules,
-                )
-                logger.info("Loaded NetworkDetector from %s", resolved_model)
-            except Exception as exc:
-                logger.warning(
-                    "Failed to load trained model from %s (%s). Falling back to rule baseline.",
-                    resolved_model,
-                    exc,
-                )
-        else:
-            logger.info(
-                "Model artifact not found at %s. Operating in rule baseline mode.",
-                resolved_model,
-            )
+                # 2. Try loading via NetworkDetector
+                try:
+                    from anomaly_detector.network.inference import load_network_detector
+                    self.detector = load_network_detector(
+                        model_path=m_path,
+                        manifest_path=man_path,
+                        rules=self.rules,
+                    )
+                    self.detector_kind = "network"
+                    logger.info("Loaded NetworkDetector from %s", m_path)
+                    break
+                except Exception as exc:
+                    logger.debug("Could not load as NetworkDetector: %s", exc)
+
+        if self.detector is None:
+            logger.info("No ML model loaded. Operating in rule baseline mode.")
 
         self.correlation_pipeline = EvidenceCorrelationPipeline(
             CorrelationConfig(explain=False, require_supporting_events=False)
@@ -190,7 +206,31 @@ class AnomalyDetectionEngine:
     def score_windows(self, windows: Sequence[NetworkWindow]) -> list[InferenceResult]:
         """Score windows using the trained detector or rule baseline fallback."""
         if self.detector is not None:
-            return self.detector.score_windows(windows)
+            if self.detector_kind == "network":
+                return self.detector.score_windows(windows)
+            if self.detector_kind == "baseline":
+                from anomaly_detector.inference.contract import FeatureWindowRequest
+                requests = [
+                    FeatureWindowRequest(
+                        window_id=win.sample_key,
+                        window_start=win.metadata.window_start,
+                        window_end=win.metadata.window_end,
+                        host_id=win.metadata.host_id,
+                        service_name=win.metadata.service,
+                        features={col: win.features.get(col) for col in self.detector.expected_feature_columns},
+                    )
+                    for win in windows
+                ]
+                results = self.detector.score_windows(requests)
+                for res, win in zip(results, windows):
+                    if res.status is InferenceStatus.SCORED:
+                        decision = score_baseline(win.features, self.rules)
+                        if res.extra is None:
+                            res.extra = {}
+                        res.extra.setdefault("network", {})["severity"] = decision.severity
+                        res.extra["network"]["baseline"] = decision.to_dict()
+                        res.extra["network"]["evidence_features"] = _build_evidence_features(win.features)
+                return results
 
         # Baseline fallback scoring
         results: list[InferenceResult] = []
