@@ -151,7 +151,12 @@ class AnomalyDetectionEngine:
         self.detector_kind: str | None = None
 
         ai_part_root = Path(__file__).resolve().parents[4] / "AI-Part"
+        pkg_model_dir = Path(__file__).resolve().parent / "model"
         candidate_pairs = [
+            (
+                str(pkg_model_dir / "model.joblib"),
+                str(pkg_model_dir / "manifest.json"),
+            ),
             (
                 os.environ.get("LAD_MODEL_PATH")
                 or str(ai_part_root / "artifacts/run_20261026T191658Z/model/model.joblib"),
