@@ -1,0 +1,1 @@
+"""Worker Lambda service package."""
