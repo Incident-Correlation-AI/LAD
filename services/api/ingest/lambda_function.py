@@ -166,6 +166,7 @@ def handle_batch_ingest(raw_body: bytes, request_id: str) -> dict[str, Any]:
     rejected = 0
     to_queue: list[bytes] = []
     queued_ids: list[str] = []
+    accepted_events: list[dict[str, Any]] = []
 
     for index, event in enumerate(events):
         errors = validate_event(event)
@@ -194,7 +195,7 @@ def handle_batch_ingest(raw_body: bytes, request_id: str) -> dict[str, Any]:
 
         accepted += 1
         if newly_claimed:
-            to_queue.append(json.dumps(event, separators=(",", ":")).encode())
+            accepted_events.append(event)
             queued_ids.append(event_id)
             results.append({"index": index, "event_id": event_id, "status": "accepted"})
         else:
@@ -206,6 +207,12 @@ def handle_batch_ingest(raw_body: bytes, request_id: str) -> dict[str, Any]:
                     "detail": "already accepted",
                 }
             )
+
+    if accepted_events:
+        chunk_size = 50
+        for i in range(0, len(accepted_events), chunk_size):
+            chunk = accepted_events[i : i + chunk_size]
+            to_queue.append(json.dumps({"events": chunk}, separators=(",", ":")).encode())
 
     if to_queue:
         try:
