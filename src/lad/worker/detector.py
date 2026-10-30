@@ -266,10 +266,34 @@ class AnomalyDetectionEngine:
                     for win in windows
                 ]
                 results = self.detector.score_windows(requests)
+                high_delta = getattr(self.rules, "isolation_forest_high_delta", 0.10)
+                mad_high_z = getattr(self.rules, "mad_high_zscore", 4.0)
                 for res, win in zip(results, windows):
                     if res.status is InferenceStatus.SCORED:
                         decision = score_baseline(win.features, self.rules)
-                        res.extra.setdefault("network", {})["severity"] = decision.severity
+                        mad_z = max(
+                            abs(win.features.get("event_count_zscore") or 0.0),
+                            abs(win.features.get("http_request_count_zscore") or 0.0),
+                        )
+                        is_if_high = (
+                            res.is_anomaly
+                            and res.raw_score is not None
+                            and res.threshold is not None
+                            and res.raw_score <= (res.threshold - high_delta)
+                        )
+                        is_mad_high = mad_z >= mad_high_z
+                        is_rule_high = decision.severity == "high"
+
+                        if is_if_high or is_mad_high or is_rule_high:
+                            res_severity = "high"
+                        elif res.is_anomaly or decision.is_anomaly:
+                            res_severity = "medium"
+                        elif decision.severity:
+                            res_severity = decision.severity
+                        else:
+                            res_severity = "none"
+
+                        res.extra.setdefault("network", {})["severity"] = res_severity
                         res.extra["network"]["baseline"] = decision.to_dict()
                         res.extra["network"]["evidence_features"] = _build_evidence_features(
                             win.features
