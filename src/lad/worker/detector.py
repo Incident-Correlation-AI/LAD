@@ -10,7 +10,9 @@ Connects incoming raw event envelopes to AI-Part:
 
 from __future__ import annotations
 
+import json
 import logging
+import math
 import os
 from datetime import datetime, timezone
 from pathlib import Path
@@ -60,9 +62,14 @@ except (ImportError, ModuleNotFoundError):
     parse_lad_events = None  # type: ignore[misc,assignment]
 
 try:
-    from anomaly_detector.inference.detector import AnomalyDetector, load_detector
+    from anomaly_detector.inference.detector import (
+        AnomalyDetector,
+        DetectorOptions,
+        load_detector,
+    )
 except (ImportError, ModuleNotFoundError):
     AnomalyDetector = None  # type: ignore[misc,assignment]
+    DetectorOptions = None  # type: ignore[misc,assignment]
     load_detector = None  # type: ignore[misc,assignment]
 
 try:
@@ -101,6 +108,42 @@ EVIDENCE_FEATURES: list[str] = [
     "out_of_order_event_count",
     "telemetry_gap_seconds",
 ]
+
+
+def _average_path_length(n: int) -> float:
+    if n <= 1:
+        return 0.0
+    if n == 2:
+        return 1.0
+    return 2.0 * (math.log(n - 1) + 0.5772156649) - (2.0 * (n - 1) / n)
+
+
+def _tree_path_length(tree: dict[str, Any], x: Sequence[float]) -> float:
+    features = tree["feature"]
+    thresholds = tree["threshold"]
+    left_children = tree["children_left"]
+    right_children = tree["children_right"]
+    samples = tree["n_node_samples"]
+    node = 0
+    depth = 0
+    while features[node] >= 0:
+        if x[features[node]] <= thresholds[node]:
+            node = left_children[node]
+        else:
+            node = right_children[node]
+        depth += 1
+    return depth + _average_path_length(samples[node])
+
+
+def score_vector_with_forest(forest: dict[str, Any], x: Sequence[float]) -> tuple[float, bool]:
+    trees = forest["trees"]
+    c_max = _average_path_length(forest["max_samples"])
+    total_depth = sum(_tree_path_length(t, x) for t in trees)
+    mean_depth = total_depth / len(trees)
+    raw_score = -(2.0 ** (-mean_depth / c_max))
+    threshold = float(forest.get("threshold", -0.44064863422484946))
+    is_anomaly = raw_score <= threshold
+    return raw_score, is_anomaly
 
 
 def _parse_ts(value: Any) -> datetime | None:
@@ -218,7 +261,16 @@ class AnomalyDetectionEngine:
             if os.path.exists(m_path) and os.path.exists(man_path):
                 # 1. Try loading via AnomalyDetector (colleague's Kaggle-tuned model)
                 try:
-                    self.detector = load_detector(m_path, man_path)
+                    opts = (
+                        DetectorOptions(allow_external_model_path=True)
+                        if DetectorOptions
+                        else None
+                    )
+                    self.detector = (
+                        load_detector(m_path, man_path, options=opts)
+                        if opts
+                        else load_detector(m_path, man_path)
+                    )
                     self.detector_kind = "baseline"
                     logger.info("Loaded AnomalyDetector (colleague model) from %s", m_path)
                     break
@@ -238,7 +290,20 @@ class AnomalyDetectionEngine:
                 except Exception as exc:
                     logger.debug("Could not load as NetworkDetector: %s", exc)
 
+        # 3. Fallback to lightweight pure-Python forest (ideal for serverless Lambda environments)
+        self.forest: dict[str, Any] | None = None
         if self.detector is None:
+            forest_path = pkg_model_dir / "forest.json"
+            if forest_path.exists():
+                try:
+                    with open(forest_path, "r", encoding="utf-8") as fh:
+                        self.forest = json.load(fh)
+                    self.detector_kind = "forest"
+                    logger.info("Loaded pure-Python IsolationForest from %s", forest_path)
+                except Exception as exc:
+                    logger.warning("Could not load forest.json: %s", exc)
+
+        if self.detector is None and self.forest is None:
             logger.info("No ML model loaded. Operating in rule baseline mode.")
 
         self.correlation_pipeline = EvidenceCorrelationPipeline(
@@ -284,8 +349,13 @@ class AnomalyDetectionEngine:
                         is_mad_high = mad_z >= mad_high_z
                         is_rule_high = decision.severity == "high"
 
-                        if is_if_high or is_mad_high or is_rule_high:
+                        if is_rule_high:
                             res_severity = "high"
+                        elif is_if_high or is_mad_high:
+                            if decision.is_anomaly and decision.severity == "medium":
+                                res_severity = "medium"
+                            else:
+                                res_severity = "high"
                         elif res.is_anomaly or decision.is_anomaly:
                             res_severity = "medium"
                         elif decision.severity:
@@ -299,6 +369,97 @@ class AnomalyDetectionEngine:
                             win.features
                         )
                 return results
+
+        if self.forest is not None:
+            results: list[InferenceResult] = []
+            feature_cols = self.forest.get("feature_columns", [])
+            medians = self.forest.get("imputation_statistics", {})
+            threshold = float(self.forest.get("threshold", -0.44064863422484946))
+            high_delta = getattr(self.rules, "isolation_forest_high_delta", 0.10)
+            mad_high_z = getattr(self.rules, "mad_high_zscore", 4.0)
+
+            for win in windows:
+                start_str = win.metadata.window_start.isoformat() if win.metadata.window_start else ""
+                end_str = win.metadata.window_end.isoformat() if win.metadata.window_end else ""
+                event_count = win.features.get("event_count")
+                if event_count in (None, 0, 0.0):
+                    results.append(
+                        InferenceResult(
+                            contract_version=CONTRACT_VERSION,
+                            status=InferenceStatus.INSUFFICIENT_DATA,
+                            reason_code=ReasonCode.NO_EVENTS,
+                            reason="No events in window",
+                            window_id=win.sample_key,
+                            window_start=start_str,
+                            window_end=end_str,
+                            host_id=win.metadata.host_id,
+                            service_name=win.metadata.service,
+                            feature_schema_version="features-v1",
+                            model_name=self.forest.get("model_name", "sklearn.ensemble.IsolationForest"),
+                            model_version=self.forest.get("model_version", "kaggle-tune-20261026T191658Z"),
+                            model_artifact_version=self.forest.get("model_artifact_version", "1"),
+                            score_direction="lower_is_more_anomalous",
+                        )
+                    )
+                    continue
+
+                x = [
+                    float(win.features[c]) if win.features.get(c) is not None else float(medians.get(c, 0.0))
+                    for c in feature_cols
+                ]
+                raw_score, is_anomaly = score_vector_with_forest(self.forest, x)
+                decision = score_baseline(win.features, self.rules)
+                mad_z = max(
+                    abs(win.features.get("event_count_zscore") or 0.0),
+                    abs(win.features.get("http_request_count_zscore") or 0.0),
+                )
+                is_if_high = is_anomaly and raw_score <= (threshold - high_delta)
+                is_mad_high = mad_z >= mad_high_z
+                is_rule_high = decision.severity == "high"
+
+                if is_rule_high:
+                    res_severity = "high"
+                elif is_if_high or is_mad_high:
+                    if decision.is_anomaly and decision.severity == "medium":
+                        res_severity = "medium"
+                    else:
+                        res_severity = "high"
+                elif is_anomaly or decision.is_anomaly:
+                    res_severity = "medium"
+                elif decision.severity:
+                    res_severity = decision.severity
+                else:
+                    res_severity = "none"
+
+                results.append(
+                    InferenceResult(
+                        contract_version=CONTRACT_VERSION,
+                        status=InferenceStatus.SCORED,
+                        reason_code=ReasonCode.OK,
+                        reason="",
+                        window_id=win.sample_key,
+                        window_start=start_str,
+                        window_end=end_str,
+                        host_id=win.metadata.host_id,
+                        service_name=win.metadata.service,
+                        feature_schema_version="features-v1",
+                        model_name=self.forest.get("model_name", "sklearn.ensemble.IsolationForest"),
+                        model_version=self.forest.get("model_version", "kaggle-tune-20261026T191658Z"),
+                        model_artifact_version=self.forest.get("model_artifact_version", "1"),
+                        raw_score=raw_score,
+                        threshold=threshold,
+                        score_direction="lower_is_more_anomalous",
+                        is_anomaly=is_anomaly,
+                        extra={
+                            "network": {
+                                "severity": res_severity,
+                                "baseline": decision.to_dict(),
+                                "evidence_features": _build_evidence_features(win.features),
+                            }
+                        },
+                    )
+                )
+            return results
 
         # Baseline fallback scoring
         results: list[InferenceResult] = []
