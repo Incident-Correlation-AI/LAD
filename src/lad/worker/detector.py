@@ -80,6 +80,25 @@ except (ImportError, ModuleNotFoundError):
 
 logger = logging.getLogger(__name__)
 
+try:
+    from anomaly_detector.network.llm import EvidenceBundle as _EB, _NUMBER_RE as _NR
+    _orig_eb_allowed = _EB.allowed_numbers
+
+    def _safe_eb_allowed(self: _EB) -> set:
+        nums = _orig_eb_allowed(self)
+        for entity_str in (self.host_id, self.service_name, self.window_id):
+            if entity_str:
+                for token in _NR.findall(str(entity_str)):
+                    try:
+                        nums.add(float(token.rstrip("%")))
+                    except ValueError:
+                        pass
+        return nums
+
+    _EB.allowed_numbers = _safe_eb_allowed
+except Exception:
+    pass
+
 EVIDENCE_FEATURES: list[str] = [
     "event_count",
     "error_count",
