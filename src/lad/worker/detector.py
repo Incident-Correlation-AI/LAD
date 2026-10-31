@@ -349,7 +349,22 @@ class AnomalyDetectionEngine:
                         is_mad_high = mad_z >= mad_high_z
                         is_rule_high = decision.severity == "high"
 
-                        if is_rule_high:
+                        error_count = win.features.get("error_count") or 0.0
+                        auth_failures = win.features.get("auth_failure_count") or 0.0
+                        restarts = win.features.get("restart_count") or 0.0
+                        http_4xx = win.features.get("http_4xx_count") or 0.0
+                        has_operational_fault = (
+                            error_count > 0
+                            or auth_failures > 0
+                            or restarts > 0
+                            or http_4xx > 0
+                            or decision.is_anomaly
+                        )
+
+                        if not has_operational_fault:
+                            res.is_anomaly = False
+                            res_severity = "none"
+                        elif is_rule_high:
                             res_severity = "high"
                         elif is_if_high or is_mad_high:
                             if decision.is_anomaly and decision.severity == "medium":
@@ -417,7 +432,22 @@ class AnomalyDetectionEngine:
                 is_mad_high = mad_z >= mad_high_z
                 is_rule_high = decision.severity == "high"
 
-                if is_rule_high:
+                error_count = win.features.get("error_count") or 0.0
+                auth_failures = win.features.get("auth_failure_count") or 0.0
+                restarts = win.features.get("restart_count") or 0.0
+                http_4xx = win.features.get("http_4xx_count") or 0.0
+                has_operational_fault = (
+                    error_count > 0
+                    or auth_failures > 0
+                    or restarts > 0
+                    or http_4xx > 0
+                    or decision.is_anomaly
+                )
+
+                if not has_operational_fault:
+                    is_anomaly = False
+                    res_severity = "none"
+                elif is_rule_high:
                     res_severity = "high"
                 elif is_if_high or is_mad_high:
                     if decision.is_anomaly and decision.severity == "medium":
