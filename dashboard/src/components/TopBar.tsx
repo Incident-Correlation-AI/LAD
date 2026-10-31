@@ -40,32 +40,18 @@ export function TopBar() {
       >
         {/* Terminal Chrome & Title */}
         <Stack direction="row" spacing={1.5} alignItems="center">
-          <Stack direction="row" spacing={0.75} alignItems="center" sx={{ mr: 0.5 }}>
-            <Box
-              sx={{
-                width: 10,
-                height: 10,
-                borderRadius: "50% !important",
-                bgcolor: "#ef4444",
-              }}
-            />
-            <Box
-              sx={{
-                width: 10,
-                height: 10,
-                borderRadius: "50% !important",
-                bgcolor: "#eab308",
-              }}
-            />
-            <Box
-              sx={{
-                width: 10,
-                height: 10,
-                borderRadius: "50% !important",
-                bgcolor: "#22c55e",
-              }}
-            />
-          </Stack>
+          <Typography
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: "1rem",
+              fontWeight: 800,
+              color: "#E8A65D",
+              mr: 0.75,
+              lineHeight: 1,
+            }}
+          >
+            &gt;_
+          </Typography>
 
           <Stack
             direction="row"
