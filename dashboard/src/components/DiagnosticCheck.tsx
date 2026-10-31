@@ -1,10 +1,8 @@
-import { Box, Chip, Stack, Typography, useTheme } from "@mui/material";
+import { Box, Chip, Stack, Typography } from "@mui/material";
 
 import type { DiagnosticCheck } from "../api/types";
 
 export function DiagnosticCheckItem({ check }: { check: DiagnosticCheck }) {
-  const theme = useTheme();
-
   return (
     <Box
       component="li"
@@ -52,7 +50,7 @@ export function DiagnosticCheckItem({ check }: { check: DiagnosticCheck }) {
           <Typography
             variant="caption"
             sx={{
-              color: theme.custom.classroomSlate500,
+              color: "#BACBC1",
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.82rem",
             }}

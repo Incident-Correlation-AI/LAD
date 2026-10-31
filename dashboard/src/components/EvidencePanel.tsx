@@ -14,13 +14,12 @@ function Group({
   tone?: "positive" | "warning";
   children: ReactNode;
 }) {
-  const theme = useTheme();
   const accentColor =
     tone === "positive"
-      ? theme.custom.campusGreen600
+      ? "#4ADE80"
       : tone === "warning"
-        ? theme.custom.brickTerracotta500
-        : theme.custom.classroomSlate500;
+        ? "#FB923C"
+        : "#BACBC1";
 
   return (
     <Box sx={{ mb: 2 }}>
@@ -45,14 +44,13 @@ function Group({
 }
 
 function IdList({ ids }: { ids: string[] }) {
-  const theme = useTheme();
   const list = ids ?? [];
   if (!list.length) {
     return (
       <Typography
         variant="body2"
         sx={{
-          color: theme.custom.classroomSlate500,
+          color: "#BACBC1",
           fontStyle: "italic",
           fontFamily: '"JetBrains Mono", monospace',
           fontSize: "0.88rem",
@@ -87,7 +85,7 @@ function IdList({ ids }: { ids: string[] }) {
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.88rem",
-              color: theme.custom.classroomSlate900,
+              color: "#FFFFFF",
               wordBreak: "break-all",
             }}
           >

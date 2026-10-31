@@ -22,8 +22,8 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" gap={2}>
         <Typography
           sx={{
-            fontWeight: 600,
-            color: theme.custom.classroomSlate900,
+            fontWeight: 700,
+            color: "#FFFFFF",
             fontFamily: '"JetBrains Mono", monospace',
             fontSize: "1.02rem",
             lineHeight: 1.6,
@@ -120,7 +120,7 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
           textTransform: "uppercase",
           fontFamily: '"JetBrains Mono", monospace',
           fontSize: "0.85rem",
-          color: theme.custom.classroomSlate500,
+          color: "#D2DFD7",
         }}
       >
         Missing evidence
@@ -132,7 +132,7 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
               component="li"
               key={item}
               sx={{
-                color: theme.custom.classroomSlate500,
+                color: "#BACBC1",
                 fontSize: "0.92rem",
                 mb: 0.75,
                 lineHeight: 1.5,
@@ -146,7 +146,7 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
         <Typography
           variant="body2"
           sx={{
-            color: theme.custom.classroomSlate500,
+            color: "#BACBC1",
             fontStyle: "italic",
             fontFamily: '"JetBrains Mono", monospace',
             fontSize: "0.88rem",
@@ -168,7 +168,7 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
             borderStyle: "dashed",
             borderColor: "rgba(162, 181, 168, 0.45)",
             bgcolor: "rgba(162, 181, 168, 0.08)",
-            color: theme.custom.classroomSlate500,
+            color: "#BACBC1",
             fontFamily: '"JetBrains Mono", monospace',
             fontWeight: 600,
             fontSize: "0.82rem",

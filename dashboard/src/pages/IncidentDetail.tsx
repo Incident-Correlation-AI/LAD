@@ -386,14 +386,71 @@ export function IncidentDetail() {
                 <Meta label="Updated">{formatTimestamp(incident.updated_at)}</Meta>
               </Grid>
               {incident.model_versions && Object.keys(incident.model_versions).length ? (
-                <Grid size={{ xs: 12, sm: 4 }}>
-                  <Meta label="Model versions">
-                    <Box component="span" sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: "0.85rem" }}>
-                      {Object.entries(incident.model_versions)
-                        .map(([name, version]) => `${name} ${version}`)
-                        .join(" · ")}
-                    </Box>
-                  </Meta>
+                <Grid size={{ xs: 12 }}>
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: "#0F1512",
+                      border: "1px solid rgba(162, 181, 168, 0.4)",
+                    }}
+                  >
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        display: "block",
+                        textTransform: "uppercase",
+                        letterSpacing: "0.1em",
+                        fontWeight: 800,
+                        fontFamily: '"JetBrains Mono", monospace',
+                        fontSize: "0.78rem",
+                        color: "#DCE5E0",
+                        mb: 1,
+                      }}
+                    >
+                      Model versions
+                    </Typography>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      {Object.entries(incident.model_versions).map(([name, version]) => (
+                        <Box
+                          key={name}
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 1,
+                            px: 1.5,
+                            py: 0.6,
+                            bgcolor: "rgba(11, 15, 12, 0.9)",
+                            border: "1px solid rgba(162, 181, 168, 0.35)",
+                            fontFamily: '"JetBrains Mono", monospace',
+                            fontSize: "0.82rem",
+                          }}
+                        >
+                          <Typography
+                            component="span"
+                            sx={{
+                              color: "#E8A65D",
+                              fontWeight: 700,
+                              fontFamily: '"JetBrains Mono", monospace',
+                              fontSize: "0.82rem",
+                            }}
+                          >
+                            {name}
+                          </Typography>
+                          <Typography
+                            component="span"
+                            sx={{
+                              color: "#FFFFFF",
+                              fontFamily: '"JetBrains Mono", monospace',
+                              fontSize: "0.82rem",
+                              wordBreak: "break-all",
+                            }}
+                          >
+                            v{version}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Stack>
+                  </Box>
                 </Grid>
               ) : null}
             </Grid>
@@ -500,7 +557,7 @@ export function IncidentDetail() {
         </Section>
       </Box>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={3} mb={3}>
         <Grid size={{ xs: 12, md: 7 }}>
           <Section
             title={`Diagnostic checks (${(incident.diagnostic_checks ?? []).length})`}
@@ -524,7 +581,10 @@ export function IncidentDetail() {
         </Grid>
 
         <Grid size={{ xs: 12, md: 5 }}>
-          <Section title="Audit trail">
+          <Section
+            title={`Audit trail (${(incident.audit ?? []).length})`}
+            subtitle="Chronological record of status transitions and operator actions."
+          >
             <AuditTrail entries={incident.audit} />
           </Section>
         </Grid>

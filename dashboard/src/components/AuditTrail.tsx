@@ -11,10 +11,10 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
       <Typography
         variant="body2"
         sx={{
-          color: theme.custom.classroomSlate500,
+          color: "#BACBC1",
           fontStyle: "italic",
           fontFamily: '"JetBrains Mono", monospace',
-          fontSize: "0.82rem",
+          fontSize: "0.85rem",
           py: 0.5,
         }}
       >
@@ -36,10 +36,10 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
       <Typography
         variant="body2"
         sx={{
-          color: theme.custom.classroomSlate500,
+          color: "#BACBC1",
           fontStyle: "italic",
           fontFamily: '"JetBrains Mono", monospace',
-          fontSize: "0.82rem",
+          fontSize: "0.85rem",
           py: 0.5,
         }}
       >
@@ -56,10 +56,10 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
           key={`${entry.at}-${entry.action}-${index}`}
           direction="row"
           gap={1.5}
-          mb={2}
+          mb={1.5}
           sx={{
             px: { xs: 2, md: 2.5 },
-            py: 1.75,
+            py: 1.5,
             bgcolor: "#0F1512",
             border: "1px solid rgba(162, 181, 168, 0.4)",
           }}
@@ -80,7 +80,7 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.92rem",
-                color: theme.custom.classroomSlate900,
+                color: "#FFFFFF",
               }}
             >
               <strong style={{ color: "#E8A65D" }}>{entry.action}</strong> by {entry.actor}{" "}
@@ -88,7 +88,7 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
                 component="time"
                 dateTime={entry.at}
                 title={formatTimestamp(entry.at)}
-                sx={{ color: theme.custom.classroomSlate500, fontSize: "0.85rem", ml: 0.5 }}
+                sx={{ color: "#BACBC1", fontSize: "0.85rem", ml: 0.5 }}
               >
                 {formatRelative(entry.at)}
               </Box>
@@ -97,14 +97,14 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
               <Typography
                 variant="body2"
                 sx={{
-                  color: theme.custom.classroomSlate500,
+                  color: "#D2DFD7",
                   fontFamily: '"JetBrains Mono", monospace',
                   fontSize: "0.85rem",
                   mt: 0.75,
                   px: 1.25,
                   py: 0.75,
-                  bgcolor: "rgba(11, 15, 12, 0.6)",
-                  border: "1px solid rgba(122, 139, 128, 0.2)",
+                  bgcolor: "rgba(11, 15, 12, 0.8)",
+                  border: "1px solid rgba(162, 181, 168, 0.35)",
                 }}
               >
                 {entry.note}
@@ -118,15 +118,13 @@ export function AuditTrail({ entries }: { entries: AuditEntry[] }) {
 }
 
 export function WindowTimeline({ windows }: { windows: IncidentWindow[] }) {
-  const theme = useTheme();
-
   const list = windows ?? [];
   if (!list.length) {
     return (
       <Typography
         variant="body2"
         sx={{
-          color: theme.custom.classroomSlate500,
+          color: "#BACBC1",
           fontStyle: "italic",
           fontFamily: '"JetBrains Mono", monospace',
           fontSize: "0.88rem",
@@ -161,7 +159,7 @@ export function WindowTimeline({ windows }: { windows: IncidentWindow[] }) {
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.9rem",
                 fontWeight: 700,
-                color: theme.custom.classroomSlate900,
+                color: "#FFFFFF",
               }}
             >
               {formatTimestamp(window.start)}
@@ -169,7 +167,7 @@ export function WindowTimeline({ windows }: { windows: IncidentWindow[] }) {
             <Typography
               variant="body2"
               sx={{
-                color: theme.custom.classroomSlate500,
+                color: "#BACBC1",
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.85rem",
                 mt: 0.35,
