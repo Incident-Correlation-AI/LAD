@@ -6,11 +6,10 @@ import {
   Paper,
   Stack,
   Typography,
-  useTheme,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import { Link as RouterLink, useParams } from "react-router-dom";
 import type { ReactNode } from "react";
+import { Link as RouterLink, useParams } from "react-router-dom";
 
 import { SeverityChip, StatusChip } from "../components/Chips";
 import { AuditTrail, WindowTimeline } from "../components/AuditTrail";
@@ -32,7 +31,6 @@ function Section({
   aside?: ReactNode;
   children: ReactNode;
 }) {
-  const theme = useTheme();
   return (
     <Paper
       sx={{
@@ -53,7 +51,7 @@ function Section({
               fontWeight: 800,
               letterSpacing: "0.08em",
               textTransform: "uppercase",
-              color: "#C7D2CC",
+              color: "#D2DFD7",
               mb: 0.5,
             }}
           >
@@ -78,7 +76,7 @@ function Section({
         <Typography
           variant="body2"
           sx={{
-            color: "#A2B5A8",
+            color: "#BACBC1",
             fontFamily: '"JetBrains Mono", monospace',
             fontSize: "0.9rem",
             lineHeight: 1.7,
@@ -94,7 +92,6 @@ function Section({
 }
 
 function Meta({ label, children, hint }: { label: string; children: ReactNode; hint?: string }) {
-  const theme = useTheme();
   return (
     <Box
       sx={{
@@ -117,7 +114,7 @@ function Meta({ label, children, hint }: { label: string; children: ReactNode; h
             fontWeight: 800,
             fontFamily: '"JetBrains Mono", monospace',
             fontSize: "0.78rem",
-            color: "#C7D2CC",
+            color: "#DCE5E0",
             mb: 0.75,
           }}
         >
@@ -141,7 +138,7 @@ function Meta({ label, children, hint }: { label: string; children: ReactNode; h
           sx={{
             display: "block",
             fontFamily: '"JetBrains Mono", monospace',
-            color: "#A2B5A8",
+            color: "#BACBC1",
             fontSize: "0.8rem",
             mt: 1,
           }}
@@ -154,7 +151,6 @@ function Meta({ label, children, hint }: { label: string; children: ReactNode; h
 }
 
 export function IncidentDetail() {
-  const theme = useTheme();
   const { incidentId = "" } = useParams();
   const query = useIncident(incidentId);
   const { acknowledge, resolve } = useIncidentLifecycle(incidentId);
@@ -190,18 +186,18 @@ export function IncidentDetail() {
         sx={{
           mb: 3,
           ml: -0.5,
-          color: theme.custom.classroomSlate900,
+          color: "#FFFFFF",
           fontFamily: '"JetBrains Mono", monospace',
           fontSize: "0.88rem",
           fontWeight: 600,
           borderRadius: 0,
           px: 2,
           py: 0.8,
-          borderColor: "rgba(162, 181, 168, 0.4)",
+          borderColor: "rgba(162, 181, 168, 0.45)",
           "&:hover": {
             borderColor: "#E8A65D",
             color: "#E8A65D",
-            bgcolor: "rgba(232, 166, 93, 0.08)",
+            bgcolor: "rgba(232, 166, 93, 0.1)",
           },
         }}
       >
@@ -230,7 +226,7 @@ export function IncidentDetail() {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.88rem",
-                color: "#A2B5A8",
+                color: "#D2DFD7",
                 mb: 0.75,
                 fontWeight: 700,
                 letterSpacing: "0.08em",
@@ -260,12 +256,12 @@ export function IncidentDetail() {
                 variant="caption"
                 sx={{
                   fontFamily: '"JetBrains Mono", monospace',
-                  color: "#C7D2CC",
+                  color: "#DCE5E0",
                   fontSize: "0.88rem",
                   fontWeight: 700,
                   px: 1.5,
                   py: 0.4,
-                  border: "1px solid rgba(162, 181, 168, 0.35)",
+                  border: "1px solid rgba(162, 181, 168, 0.45)",
                   bgcolor: "#0F1512",
                 }}
               >
@@ -277,6 +273,7 @@ export function IncidentDetail() {
           <Stack direction="row" spacing={1.5} alignItems="center" flexWrap="wrap">
             <Button
               variant="outlined"
+              aria-label="Acknowledge"
               disabled={incident.status !== "open" || acknowledge.isPending}
               onClick={() => acknowledge.mutate()}
               sx={{
@@ -295,7 +292,7 @@ export function IncidentDetail() {
                 },
                 "&.Mui-disabled": {
                   borderColor: "rgba(122, 139, 128, 0.25)",
-                  color: "rgba(162, 181, 168, 0.4)",
+                  color: "rgba(186, 203, 193, 0.55)",
                   bgcolor: "transparent",
                 },
               }}
@@ -304,6 +301,7 @@ export function IncidentDetail() {
             </Button>
             <Button
               variant="outlined"
+              aria-label="Resolve"
               disabled={incident.status === "resolved" || resolve.isPending}
               onClick={() => resolve.mutate()}
               sx={{
@@ -322,7 +320,7 @@ export function IncidentDetail() {
                 },
                 "&.Mui-disabled": {
                   borderColor: "rgba(122, 139, 128, 0.25)",
-                  color: "rgba(162, 181, 168, 0.4)",
+                  color: "rgba(186, 203, 193, 0.55)",
                   bgcolor: "transparent",
                 },
               }}
@@ -429,7 +427,7 @@ export function IncidentDetail() {
                     <Typography
                       variant="caption"
                       sx={{
-                        color: "#A2B5A8",
+                        color: "#BACBC1",
                         fontFamily: '"JetBrains Mono", monospace',
                         fontSize: "0.88rem",
                         display: "block",
@@ -443,7 +441,7 @@ export function IncidentDetail() {
               ) : (
                 <Typography
                   variant="body2"
-                  sx={{ color: "#A2B5A8", fontFamily: '"JetBrains Mono", monospace', fontSize: "0.9rem" }}
+                  sx={{ color: "#BACBC1", fontFamily: '"JetBrains Mono", monospace', fontSize: "0.9rem" }}
                 >
                   None recorded.
                 </Typography>
@@ -459,7 +457,7 @@ export function IncidentDetail() {
                 letterSpacing: "0.08em",
                 fontWeight: 700,
                 fontFamily: '"JetBrains Mono", monospace',
-                color: theme.custom.classroomSlate500,
+                color: "#DCE5E0",
                 fontSize: "0.82rem",
               }}
             >
@@ -494,7 +492,7 @@ export function IncidentDetail() {
           ) : (
             <Typography
               variant="body2"
-              sx={{ color: theme.custom.classroomSlate500, fontFamily: '"JetBrains Mono", monospace', fontSize: "0.88rem" }}
+              sx={{ color: "#BACBC1", fontFamily: '"JetBrains Mono", monospace', fontSize: "0.88rem" }}
             >
               No hypothesis recorded for this incident.
             </Typography>
@@ -517,7 +515,7 @@ export function IncidentDetail() {
             ) : (
               <Typography
                 variant="body2"
-                sx={{ color: theme.custom.classroomSlate500, fontFamily: '"JetBrains Mono", monospace', fontSize: "0.88rem" }}
+                sx={{ color: "#BACBC1", fontFamily: '"JetBrains Mono", monospace', fontSize: "0.88rem" }}
               >
                 No checks suggested.
               </Typography>

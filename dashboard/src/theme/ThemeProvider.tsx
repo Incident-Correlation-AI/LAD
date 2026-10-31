@@ -98,8 +98,8 @@ const theme = createTheme({
             backgroundColor: "rgba(232, 166, 93, 0.18)",
           },
           "&.Mui-disabled": {
-            borderColor: "rgba(162, 181, 168, 0.2)",
-            color: "rgba(162, 181, 168, 0.4)",
+            borderColor: "rgba(162, 181, 168, 0.25)",
+            color: "rgba(186, 203, 193, 0.55)",
           },
         },
         outlined: {
@@ -141,7 +141,7 @@ const theme = createTheme({
             borderColor: LINE,
           },
           "&:hover .MuiOutlinedInput-notchedOutline": {
-            borderColor: customColors.classroomSlate500,
+            borderColor: customColors.torchGold600,
           },
           "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
             borderColor: customColors.torchGold600,
@@ -156,7 +156,7 @@ const theme = createTheme({
           letterSpacing: "0.08em",
           textTransform: "uppercase",
           fontWeight: 800,
-          color: "#C7D2CC",
+          color: "#DCE5E0",
           backgroundColor: "#0F1512",
           borderBottom: `1px solid ${LINE}`,
           paddingBlock: 14,
@@ -164,7 +164,7 @@ const theme = createTheme({
           fontFamily: bodyFont,
         },
         root: {
-          borderBottom: `1px solid rgba(122, 139, 128, 0.2)`,
+          borderBottom: `1px solid rgba(162, 181, 168, 0.2)`,
           paddingBlock: 14,
           paddingInline: 22,
           fontSize: "0.92rem",

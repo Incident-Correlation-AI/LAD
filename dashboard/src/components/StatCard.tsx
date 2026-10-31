@@ -63,9 +63,9 @@ export function StatCard({
             textTransform: "uppercase",
             letterSpacing: "0.1em",
             fontWeight: 800,
-            fontSize: "0.8rem",
+            fontSize: "1.2rem",
             fontFamily: '"JetBrains Mono", monospace',
-            color: "#C7D2CC",
+            color: "#DCE5E0",
             lineHeight: 1.4,
           }}
         >

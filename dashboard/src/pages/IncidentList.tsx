@@ -134,7 +134,7 @@ export function IncidentList() {
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.92rem",
               fontWeight: 600,
-              color: "#A2B5A8",
+              color: "#D2DFD7",
               mb: 0.5,
             }}
           >
@@ -144,9 +144,9 @@ export function IncidentList() {
             variant="h5"
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
-              fontWeight: 700,
+              fontWeight: 800,
               fontSize: "1.65rem",
-              color: theme.custom.classroomSlate900,
+              color: "#FFFFFF",
               letterSpacing: "-0.01em",
               mb: 0.75,
             }}
@@ -185,7 +185,18 @@ export function IncidentList() {
         <Button
           size="small"
           variant="outlined"
-          startIcon={<RefreshIcon sx={{ fontSize: 18 }} />}
+          aria-label="Refresh"
+          startIcon={
+            <RefreshIcon
+              sx={{
+                fontSize: 18,
+                animation: query.isFetching ? "spin 1s linear infinite" : "none",
+                "@keyframes spin": {
+                  "100%": { transform: "rotate(360deg)" },
+                },
+              }}
+            />
+          }
           onClick={() => {
             void query.refetch();
             breakdown.refetch();
@@ -194,16 +205,16 @@ export function IncidentList() {
           sx={{
             fontFamily: '"JetBrains Mono", monospace',
             fontSize: "0.88rem",
-            fontWeight: 600,
+            fontWeight: 700,
             borderRadius: 0,
             px: 2,
-            py: 0.8,
-            color: theme.custom.classroomSlate900,
-            borderColor: "rgba(162, 181, 168, 0.4)",
+            py: 0.75,
+            color: "#FFFFFF",
+            borderColor: "rgba(162, 181, 168, 0.45)",
             "&:hover": {
               borderColor: "#E8A65D",
               color: "#E8A65D",
-              bgcolor: "rgba(232, 166, 93, 0.08)",
+              bgcolor: "rgba(232, 166, 93, 0.1)",
             },
           }}
         >
@@ -277,7 +288,7 @@ export function IncidentList() {
           py: { xs: 2.5, md: 3 },
           mb: 3,
           bgcolor: "#0B0F0C",
-          border: "1px solid rgba(122, 139, 128, 0.35)",
+          border: "1px solid rgba(162, 181, 168, 0.45)",
           borderRadius: 0,
         }}
       >
@@ -287,7 +298,7 @@ export function IncidentList() {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.88rem",
-                color: "#A2B5A8",
+                color: "#D2DFD7",
                 mb: 0.25,
                 fontWeight: 600,
               }}
@@ -298,10 +309,10 @@ export function IncidentList() {
               variant="subtitle2"
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: "1.05rem",
                 letterSpacing: "-0.01em",
-                color: theme.custom.classroomSlate900,
+                color: "#FFFFFF",
               }}
             >
               Incidents by severity
@@ -334,7 +345,7 @@ export function IncidentList() {
           py: { xs: 2.25, md: 2.5 },
           mb: 3,
           bgcolor: "#0B0F0C",
-          border: "1px solid rgba(122, 139, 128, 0.35)",
+          border: "1px solid rgba(162, 181, 168, 0.45)",
           borderRadius: 0,
         }}
       >
@@ -349,7 +360,7 @@ export function IncidentList() {
                 fontSize: "0.88rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
-                color: "#A2B5A8",
+                color: "#D2DFD7",
               }}
             >
               $ filter-query
@@ -472,7 +483,7 @@ export function IncidentList() {
         />
       ) : null}
 
-      {query.isError ? (
+      {!query.isLoading && query.isError ? (
         <ApiErrorState error={query.error} retry={() => void query.refetch()} />
       ) : null}
 
@@ -484,12 +495,12 @@ export function IncidentList() {
         />
       ) : null}
 
-      {incidents.length > 0 ? (
+      {!query.isLoading && incidents.length > 0 ? (
         <Paper
           sx={{
             overflow: "hidden",
             bgcolor: "#0B0F0C",
-            border: "1px solid rgba(122, 139, 128, 0.35)",
+            border: "1px solid rgba(162, 181, 168, 0.45)",
             borderRadius: 0,
           }}
         >
@@ -498,7 +509,7 @@ export function IncidentList() {
             sx={{
               px: { xs: 2.5, md: 3.5 },
               py: 1.5,
-              borderBottom: "1px solid rgba(122, 139, 128, 0.25)",
+              borderBottom: "1px solid rgba(162, 181, 168, 0.35)",
               bgcolor: "#111613",
               display: "flex",
               justifyContent: "space-between",
@@ -511,7 +522,7 @@ export function IncidentList() {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.88rem",
-                color: "#A2B5A8",
+                color: "#D2DFD7",
                 fontWeight: 700,
                 letterSpacing: "0.05em",
               }}
@@ -534,13 +545,13 @@ export function IncidentList() {
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Severity</TableCell>
-                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Status</TableCell>
-                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Incident</TableCell>
-                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Entities</TableCell>
-                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Detector</TableCell>
-                  <TableCell align="right" sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Score</TableCell>
-                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Created</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#DCE5E0" }}>Severity</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#DCE5E0" }}>Status</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#DCE5E0" }}>Incident</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#DCE5E0" }}>Entities</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#DCE5E0" }}>Detector</TableCell>
+                  <TableCell align="right" sx={{ fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#DCE5E0" }}>Score</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 800, letterSpacing: "0.06em", textTransform: "uppercase", color: "#DCE5E0" }}>Created</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -583,7 +594,7 @@ export function IncidentList() {
                               color: theme.custom.classroomSlate900,
                             }}
                           >
-                            <Box component="span" sx={{ fontWeight: 700 }}>{entity.host}</Box>
+                            <Box component="span" sx={{ fontWeight: 700, color: "#FFFFFF" }}>{entity.host}</Box>
                             {entity.service ? (
                               <Box
                                 component="span"
@@ -678,12 +689,12 @@ export function IncidentList() {
                   px: 3,
                   py: 0.8,
                   borderRadius: 0,
-                  color: theme.custom.classroomSlate900,
-                  borderColor: "rgba(162, 181, 168, 0.4)",
+                  color: "#FFFFFF",
+                  borderColor: "rgba(162, 181, 168, 0.45)",
                   "&:hover": {
                     borderColor: "#E8A65D",
                     color: "#E8A65D",
-                    bgcolor: "rgba(232, 166, 93, 0.08)",
+                    bgcolor: "rgba(232, 166, 93, 0.1)",
                   },
                 }}
               >

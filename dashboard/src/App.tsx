@@ -6,7 +6,6 @@ import { IncidentDetail } from "./pages/IncidentDetail";
 import { IncidentList } from "./pages/IncidentList";
 import { UnauthorizedScreen } from "./components/UnauthorizedScreen";
 import { useAuth } from "./auth/AuthContext";
-
 export function App() {
   const { isAuthenticated, isLoading, error } = useAuth();
 
@@ -24,7 +23,7 @@ export function App() {
       >
         <Box sx={{ textAlign: "center" }}>
           <CircularProgress size={28} sx={{ color: "#E8A65D", mb: 2 }} />
-          <Box sx={{ color: "#7A8B80", fontSize: "0.85rem" }}>
+          <Box sx={{ color: "#BACBC1", fontSize: "0.85rem", fontWeight: 600 }}>
             $ verifying session credentials...
           </Box>
         </Box>

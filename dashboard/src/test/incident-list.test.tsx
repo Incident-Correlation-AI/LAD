@@ -178,4 +178,30 @@ describe("IncidentList", () => {
 
     expect(await screen.findByText("legacy_inc_1")).toBeInTheDocument();
   });
+
+  it("refetches incidents when manual refresh button is clicked", async () => {
+    let resolveRefetch: (val: IncidentListPayload) => void = () => {};
+    mockListPages([{ items: [makeIncident()], next_cursor: null }]);
+    const user = userEvent.setup();
+    renderWithProviders(<IncidentList />);
+
+    expect(await screen.findByText("inc_test_1")).toBeInTheDocument();
+
+    mockedFetchIncidents.mockImplementation((filters) => {
+      if (isCountQuery(filters)) {
+        return Promise.resolve({ items: [], next_cursor: null });
+      }
+      return new Promise((resolve) => {
+        resolveRefetch = resolve;
+      });
+    });
+
+    await user.click(screen.getByRole("button", { name: /refresh/i }));
+
+    // Button indicates refresh is underway
+    expect(screen.getByRole("button", { name: /refresh/i })).toBeDisabled();
+
+    resolveRefetch({ items: [makeIncident({ incident_id: "inc_refreshed" })], next_cursor: null });
+    expect(await screen.findByText("inc_refreshed")).toBeInTheDocument();
+  });
 });

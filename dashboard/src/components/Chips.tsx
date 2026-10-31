@@ -54,9 +54,9 @@ function TintedChip({ tint, ...props }: Omit<ChipProps, "color"> & { tint: strin
         fontSize: "0.8rem",
         letterSpacing: "0.04em",
         textTransform: "uppercase",
-        bgcolor: alpha(tint, 0.1),
+        bgcolor: alpha(tint, 0.12),
         color: tint,
-        borderColor: alpha(tint, 0.5),
+        borderColor: alpha(tint, 0.6),
         height: 26,
         ...props.sx,
       }}

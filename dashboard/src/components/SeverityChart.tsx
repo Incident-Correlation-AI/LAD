@@ -47,25 +47,36 @@ export function SeverityChart({ counts }: { counts: Record<IncidentSeverity, num
                     fontFamily: '"JetBrains Mono", monospace',
                   }}
                 >
-                  <Typography
-                    sx={{
-                      fontFamily: '"JetBrains Mono", monospace',
-                      fontSize: "0.88rem",
-                      fontWeight: 800,
-                      textTransform: "uppercase",
-                      color: "#FFFFFF",
-                      letterSpacing: "0.08em",
-                    }}
-                  >
-                    {item.severity}
-                  </Typography>
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Box
+                      sx={{
+                        width: 10,
+                        height: 10,
+                        borderRadius: 0,
+                        bgcolor: color,
+                        flexShrink: 0,
+                      }}
+                    />
+                    <Typography
+                      sx={{
+                        fontFamily: '"JetBrains Mono", monospace',
+                        fontSize: "0.88rem",
+                        fontWeight: 800,
+                        textTransform: "uppercase",
+                        color: "#FFFFFF",
+                        letterSpacing: "0.08em",
+                      }}
+                    >
+                      {item.severity}
+                    </Typography>
+                  </Stack>
                   <Stack direction="row" spacing={2} alignItems="center">
                     <Typography
                       sx={{
                         fontFamily: '"JetBrains Mono", monospace',
                         fontSize: "1rem",
                         fontWeight: 700,
-                        color: theme.custom.classroomSlate900,
+                        color: "#FFFFFF",
                         fontVariantNumeric: "tabular-nums",
                       }}
                     >
@@ -129,7 +140,7 @@ export function SeverityChart({ counts }: { counts: Record<IncidentSeverity, num
                   cursor={{ fill: "rgba(232, 166, 93, 0.08)" }}
                   contentStyle={{
                     borderRadius: 0,
-                    border: "1px solid rgba(122, 139, 128, 0.45)",
+                    border: "1px solid rgba(162, 181, 168, 0.45)",
                     background: "#0B0F0C",
                     color: "#FFFFFF",
                     fontFamily: '"JetBrains Mono", monospace',
@@ -150,7 +161,7 @@ export function SeverityChart({ counts }: { counts: Record<IncidentSeverity, num
                       fontSize: 13,
                       fontWeight: 700,
                       fontFamily: '"JetBrains Mono", monospace',
-                      fill: theme.custom.classroomSlate900,
+                      fill: "#FFFFFF",
                     }}
                   />
                 </Bar>

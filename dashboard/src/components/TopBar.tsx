@@ -72,7 +72,7 @@ export function TopBar() {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.92rem",
-                color: "#A2B5A8",
+                color: "#BACBC1",
                 fontWeight: 600,
                 display: { xs: "none", sm: "inline" },
               }}
@@ -83,7 +83,7 @@ export function TopBar() {
               className="terminal-title"
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
-                fontWeight: 700,
+                fontWeight: 800,
                 fontSize: "1.05rem",
                 letterSpacing: "-0.01em",
                 color: "#E8A65D",
@@ -106,7 +106,7 @@ export function TopBar() {
               borderRadius: 0,
               borderColor: "rgba(162, 181, 168, 0.45)",
               bgcolor: "rgba(162, 181, 168, 0.08)",
-              color: "#A2B5A8",
+              color: "#D2DFD7",
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.8rem",
               fontWeight: 600,
@@ -139,15 +139,16 @@ export function TopBar() {
               borderRadius: 0,
               px: 1.75,
               py: 0.6,
-              borderColor: "rgba(162, 181, 168, 0.4)",
-              color: "#F0F5F2",
+              borderColor: "rgba(162, 181, 168, 0.45)",
+              color: "#FFFFFF",
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.82rem",
               fontWeight: 600,
               textTransform: "none",
               "&:hover": {
-                borderColor: "#A2B5A8",
-                bgcolor: "rgba(162, 181, 168, 0.12)",
+                borderColor: "#E8A65D",
+                color: "#E8A65D",
+                bgcolor: "rgba(232, 166, 93, 0.1)",
               },
             }}
           >
@@ -162,15 +163,15 @@ export function TopBar() {
               borderRadius: 0,
               px: 1.75,
               py: 0.6,
-              borderColor: "rgba(239, 68, 68, 0.5)",
-              color: "#EF4444",
+              borderColor: "rgba(248, 113, 113, 0.5)",
+              color: "#F87171",
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.82rem",
               fontWeight: 600,
               textTransform: "none",
               "&:hover": {
-                borderColor: "#EF4444",
-                bgcolor: "rgba(239, 68, 68, 0.12)",
+                borderColor: "#F87171",
+                bgcolor: "rgba(248, 113, 113, 0.12)",
               },
             }}
           >

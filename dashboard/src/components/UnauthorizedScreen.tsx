@@ -12,7 +12,7 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
       sx={{
         minHeight: "100vh",
         bgcolor: "#0B0F0C",
-        color: "#D7E0D9",
+        color: "#FFFFFF",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -25,7 +25,7 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
           width: "100%",
           maxWidth: 680,
           bgcolor: "#0B0F0C",
-          border: "1px solid #7A8B80",
+          border: "1px solid rgba(162, 181, 168, 0.45)",
           borderRadius: 0,
           boxShadow: "none",
           overflow: "hidden",
@@ -40,10 +40,10 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
             px: 2,
             py: 1.25,
             bgcolor: "#0B0F0C",
-            borderBottom: "1px solid rgba(122, 139, 128, 0.4)",
+            borderBottom: "1px solid rgba(162, 181, 168, 0.35)",
             fontFamily: '"JetBrains Mono", monospace',
             fontSize: "0.8rem",
-            color: "#7A8B80",
+            color: "#BACBC1",
           }}
         >
           <Stack direction="row" spacing={1} alignItems="center">
@@ -76,7 +76,7 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.8rem",
-                color: "#7A8B80",
+                color: "#BACBC1",
                 ml: 1,
               }}
             >
@@ -101,7 +101,7 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.9rem",
-              color: "#7A8B80",
+              color: "#D2DFD7",
               mb: 2,
             }}
           >
@@ -113,8 +113,8 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
             sx={{
               p: 2.5,
               mb: 3,
-              border: "1px solid #ef4444",
-              bgcolor: "rgba(239, 68, 68, 0.06)",
+              border: "1px solid #F87171",
+              bgcolor: "rgba(239, 68, 68, 0.08)",
               fontFamily: '"JetBrains Mono", monospace',
             }}
           >
@@ -123,7 +123,7 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "1rem",
                 fontWeight: 700,
-                color: "#ef4444",
+                color: "#F87171",
                 mb: 1,
               }}
             >
@@ -133,7 +133,7 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontSize: "0.85rem",
-                color: "#D7E0D9",
+                color: "#FFFFFF",
                 lineHeight: 1.6,
               }}
             >
@@ -160,7 +160,7 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.82rem",
-              color: "#7A8B80",
+              color: "#BACBC1",
               mb: 3,
               lineHeight: 1.6,
             }}
@@ -197,16 +197,17 @@ export function UnauthorizedScreen({ error }: { error?: string | null }) {
               variant="outlined"
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
-                color: "#D7E0D9",
-                borderColor: "rgba(122, 139, 128, 0.4)",
+                color: "#FFFFFF",
+                borderColor: "rgba(162, 181, 168, 0.45)",
                 borderRadius: 0,
                 fontWeight: 600,
                 px: 3,
                 py: 1.25,
                 textTransform: "none",
                 "&:hover": {
-                  borderColor: "#7A8B80",
-                  bgcolor: "rgba(122, 139, 128, 0.1)",
+                  borderColor: "#E8A65D",
+                  color: "#E8A65D",
+                  bgcolor: "rgba(232, 166, 93, 0.1)",
                 },
               }}
             >
