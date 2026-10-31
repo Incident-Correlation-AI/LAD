@@ -1,6 +1,5 @@
 import { Box, Grid, List, ListItem, Typography, useTheme } from "@mui/material";
 import type { ReactNode } from "react";
-import { Link as RouterLink } from "react-router-dom";
 
 import type { Evidence } from "../api/types";
 
@@ -44,7 +43,7 @@ function Group({
   );
 }
 
-function IdList({ ids, href }: { ids: string[]; href?: string }) {
+function IdList({ ids }: { ids: string[] }) {
   const list = ids ?? [];
   if (!list.length) {
     return (
@@ -83,24 +82,11 @@ function IdList({ ids, href }: { ids: string[]; href?: string }) {
           {/* Log-derived strings are attacker-controlled: rendered as text
               nodes only, never as HTML. */}
           <Typography
-            {...(href
-              ? { component: RouterLink, to: href }
-              : {})}
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
               fontSize: "0.88rem",
-              color: href ? "#E8A65D" : "#FFFFFF",
-              fontWeight: href ? 600 : 400,
-              textDecoration: "none",
+              color: "#FFFFFF",
               wordBreak: "break-all",
-              ...(href
-                ? {
-                    "&:hover": {
-                      textDecoration: "underline",
-                      color: "#f0b46e",
-                    },
-                  }
-                : {}),
             }}
           >
             {id}
@@ -111,25 +97,18 @@ function IdList({ ids, href }: { ids: string[]; href?: string }) {
   );
 }
 
-export function EvidencePanel({
-  evidence,
-  incidentId,
-}: {
-  evidence: Evidence;
-  incidentId: string;
-}) {
+export function EvidencePanel({ evidence }: { evidence: Evidence }) {
   const theme = useTheme();
   const supporting = evidence.supporting_event_ids ?? [];
   const contradicting = evidence.contradicting_event_ids ?? [];
   const refs = evidence.redacted_refs ?? [];
-  const incidentHref = `/incidents/${encodeURIComponent(incidentId)}`;
 
   return (
     <Box>
       <Grid container spacing={3}>
         <Grid size={{ xs: 12, md: 6 }}>
           <Group title="Supporting evidence" count={supporting.length} tone="positive">
-            <IdList ids={supporting} href={incidentHref} />
+            <IdList ids={supporting} />
           </Group>
         </Grid>
 
@@ -137,7 +116,7 @@ export function EvidencePanel({
             would not be honest about what the detector could not see. */}
         <Grid size={{ xs: 12, md: 6 }}>
           <Group title="Contradicting evidence" count={contradicting.length} tone="warning">
-            <IdList ids={contradicting} href={incidentHref} />
+            <IdList ids={contradicting} />
           </Group>
         </Grid>
 

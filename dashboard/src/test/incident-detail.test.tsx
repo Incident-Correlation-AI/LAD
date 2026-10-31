@@ -54,18 +54,6 @@ describe("IncidentDetail", () => {
     expect(screen.getAllByText(/none recorded/i).length).toBeGreaterThan(0);
   });
 
-  it("links supporting evidence back to the incident", async () => {
-    mockedFetchIncident.mockResolvedValue(makeIncident());
-    renderDetail(<IncidentDetail />, "inc_test_1");
-
-    const links = await screen.findAllByRole("link", { name: "evt_1" });
-    expect(links[0]).toHaveAttribute("href", "/incidents/inc_test_1");
-    // Redacted references are archive positions, not incident links.
-    expect(
-      screen.queryByRole("link", { name: /checkout-2026-10-22/ }),
-    ).not.toBeInTheDocument();
-  });
-
   it("marks diagnostic checks as not executed automatically", async () => {
     mockedFetchIncident.mockResolvedValue(makeIncident());
     renderDetail(<IncidentDetail />, "inc_test_1");

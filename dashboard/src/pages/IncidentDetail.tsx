@@ -531,7 +531,6 @@ export function IncidentDetail() {
             evidence={
               incident.evidence ?? { supporting_event_ids: [], contradicting_event_ids: [] }
             }
-            incidentId={incident.incident_id}
           />
         </Section>
       </Box>
