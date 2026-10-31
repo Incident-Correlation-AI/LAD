@@ -1,4 +1,4 @@
-import { Box, List, ListItem, Typography, alpha, useTheme } from "@mui/material";
+import { Box, List, ListItem, Typography, useTheme } from "@mui/material";
 import type { ReactNode } from "react";
 
 import type { Evidence } from "../api/types";
@@ -23,7 +23,8 @@ function Group({
           fontWeight: 700,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
-          color: theme.custom.classroomSlate400,
+          fontFamily: '"JetBrains Mono", monospace',
+          color: theme.custom.classroomSlate500,
         }}
       >
         {title} · {count}
@@ -38,7 +39,15 @@ function IdList({ ids }: { ids: string[] }) {
   const list = ids ?? [];
   if (!list.length) {
     return (
-      <Typography variant="body2" sx={{ color: theme.custom.classroomSlate400, fontStyle: "italic" }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: theme.custom.classroomSlate500,
+          fontStyle: "italic",
+          fontFamily: '"JetBrains Mono", monospace',
+          fontSize: "0.8rem",
+        }}
+      >
         None recorded.
       </Typography>
     );
@@ -49,16 +58,24 @@ function IdList({ ids }: { ids: string[] }) {
         <ListItem
           key={id}
           sx={{
-            px: 1.25,
-            py: 0.5,
-            mb: 0.5,
-            borderRadius: "6px",
-            bgcolor: alpha(theme.custom.classroomSlate500, 0.04),
+            px: 1.5,
+            py: 0.6,
+            mb: 0.75,
+            borderRadius: 0,
+            bgcolor: "#111613",
+            border: "1px solid rgba(122, 139, 128, 0.25)",
           }}
         >
           {/* Log-derived strings are attacker-controlled: rendered as text
               nodes only, never as HTML. */}
-          <Typography sx={{ fontFamily: "monospace", fontSize: "0.78rem", wordBreak: "break-all" }}>
+          <Typography
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: "0.78rem",
+              color: "#D7E0D9",
+              wordBreak: "break-all",
+            }}
+          >
             {id}
           </Typography>
         </ListItem>
@@ -98,11 +115,13 @@ export function EvidencePanel({ evidence }: { evidence: Evidence }) {
           mt: 1,
           pt: 1,
           borderTop: `1px solid ${theme.palette.divider}`,
-          color: theme.custom.classroomSlate400,
+          fontFamily: '"JetBrains Mono", monospace',
+          color: theme.custom.classroomSlate500,
+          fontSize: "0.72rem",
         }}
       >
-        Raw logs are not archived by default. References point to redacted
-        extracts only.
+        Evidence IDs point back to the collector’s encrypted archive. Redacted
+        references cite positions within the raw source stream before scrub.
       </Typography>
     </Box>
   );

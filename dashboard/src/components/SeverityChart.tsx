@@ -1,4 +1,4 @@
-import { Box, useTheme, alpha } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import {
   Bar,
   BarChart,
@@ -28,40 +28,49 @@ export function SeverityChart({ counts }: { counts: Record<IncidentSeverity, num
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           data={data}
-          // Thick bars: the band is ~270px wide per category on desktop, so a
-          // 30% gap leaves a wide, readable bar instead of a hairline.
           barCategoryGap="30%"
           margin={{ top: 18, right: 8, left: -22, bottom: 0 }}
         >
           <CartesianGrid
-            strokeDasharray="3 3"
+            strokeDasharray="2 2"
             vertical={false}
-            stroke={theme.palette.divider}
+            stroke="rgba(122, 139, 128, 0.18)"
           />
           <XAxis
             dataKey="severity"
             tickLine={false}
             axisLine={false}
-            tick={{ fill: theme.custom.classroomSlate500, fontSize: 12, fontWeight: 600 }}
+            tick={{
+              fill: theme.custom.classroomSlate500,
+              fontSize: 11,
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 600,
+            }}
           />
           <YAxis
             allowDecimals={false}
             tickLine={false}
             axisLine={false}
-            tick={{ fill: theme.custom.classroomSlate400, fontSize: 11 }}
+            tick={{
+              fill: theme.custom.classroomSlate500,
+              fontSize: 10,
+              fontFamily: '"JetBrains Mono", monospace',
+            }}
           />
           <Tooltip
-            cursor={{ fill: alpha(theme.custom.nileBlue300, 0.12) }}
+            cursor={{ fill: "rgba(232, 166, 93, 0.05)" }}
             contentStyle={{
-              borderRadius: 8,
-              border: `1px solid ${theme.palette.divider}`,
-              background: "#fff",
+              borderRadius: 0,
+              border: "1px solid #7A8B80",
+              background: "#0B0F0C",
+              color: "#D7E0D9",
+              fontFamily: '"JetBrains Mono", monospace',
               fontSize: 12,
-              boxShadow: "0 4px 12px rgba(16,24,40,0.08)",
+              boxShadow: "none",
             }}
             formatter={(value: number) => [`${value}`, "incidents"]}
           />
-          <Bar dataKey="incidents" radius={[6, 6, 0, 0]} maxBarSize={140}>
+          <Bar dataKey="incidents" radius={[0, 0, 0, 0]} maxBarSize={140}>
             {data.map((entry) => (
               <Cell key={entry.severity} fill={severityColor(entry.severity, theme)} />
             ))}
@@ -70,9 +79,10 @@ export function SeverityChart({ counts }: { counts: Record<IncidentSeverity, num
               position="top"
               offset={6}
               style={{
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: 700,
-                fill: theme.custom.classroomSlate600,
+                fontFamily: '"JetBrains Mono", monospace',
+                fill: theme.custom.classroomSlate900,
               }}
             />
           </Bar>

@@ -1,9 +1,9 @@
-import { Avatar, Box, Paper, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Paper, Typography, alpha, useTheme } from "@mui/material";
 import type { ReactNode } from "react";
 
 /**
- * Compact stat tile: white surface, hairline border, tinted icon. No gradients
- * or accent spines — the number is the thing worth looking at.
+ * Compact terminal telemetry stat tile:
+ * Dark terminal surface, sharp 1px border, monospace typography.
  */
 export function StatCard({
   icon,
@@ -28,24 +28,31 @@ export function StatCard({
         display: "flex",
         alignItems: "flex-start",
         gap: 2,
-        transition: "box-shadow 0.18s ease, border-color 0.18s ease",
+        borderRadius: 0,
+        bgcolor: "#0B0F0C",
+        border: "1px solid rgba(122, 139, 128, 0.3)",
+        transition: "border-color 0.15s ease, background-color 0.15s ease",
         "&:hover": {
-          boxShadow: "0 4px 12px rgba(16, 24, 40, 0.08)",
-          borderColor: alpha(color, 0.4),
+          borderColor: "#E8A65D",
+          bgcolor: "rgba(232, 166, 93, 0.03)",
         },
       }}
     >
-      <Avatar
+      <Box
         sx={{
-          width: 40,
-          height: 40,
-          borderRadius: "10px",
-          bgcolor: alpha(color, 0.12),
+          width: 38,
+          height: 38,
+          borderRadius: 0,
+          border: `1px solid ${alpha(color, 0.4)}`,
+          bgcolor: alpha(color, 0.08),
           color,
+          display: "grid",
+          placeItems: "center",
+          flexShrink: 0,
         }}
       >
         {icon}
-      </Avatar>
+      </Box>
 
       <Box sx={{ minWidth: 0 }}>
         <Typography
@@ -55,6 +62,7 @@ export function StatCard({
             textTransform: "uppercase",
             letterSpacing: "0.06em",
             fontWeight: 700,
+            fontFamily: '"JetBrains Mono", monospace',
             color: theme.custom.classroomSlate500,
             lineHeight: 1.4,
           }}
@@ -63,7 +71,7 @@ export function StatCard({
         </Typography>
         <Typography
           sx={{
-            fontFamily: '"Space Grotesk", sans-serif',
+            fontFamily: '"JetBrains Mono", monospace',
             fontWeight: 700,
             fontSize: "1.65rem",
             lineHeight: 1.2,
@@ -74,7 +82,15 @@ export function StatCard({
           {typeof value === "number" ? value.toLocaleString() : value}
         </Typography>
         {caption ? (
-          <Typography variant="caption" sx={{ color: theme.custom.classroomSlate400 }}>
+          <Typography
+            variant="caption"
+            sx={{
+              display: "block",
+              fontFamily: '"JetBrains Mono", monospace',
+              color: theme.custom.classroomSlate500,
+              mt: 0.25,
+            }}
+          >
             {caption}
           </Typography>
         ) : null}

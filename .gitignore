@@ -12,4 +12,7 @@ build/
 # dashboard
 dashboard/node_modules/
 dashboard/dist/
+dashboard/.env
+dashboard/.env.*
 dashboard/.env.local
+!dashboard/.env.example

@@ -22,7 +22,7 @@ export function severityColor(severity: IncidentSeverity, theme: Theme): string 
     case "medium":
       return theme.custom.torchGold600;
     case "low":
-      return theme.custom.nileBlue500;
+      return theme.custom.classroomSlate500;
     default:
       return theme.custom.classroomSlate500;
   }
@@ -31,7 +31,7 @@ export function severityColor(severity: IncidentSeverity, theme: Theme): string 
 export function statusColor(status: IncidentStatus, theme: Theme): string {
   switch (status) {
     case "open":
-      return theme.custom.brickTerracotta500;
+      return theme.custom.errorRed500;
     case "acknowledged":
       return theme.custom.torchGold600;
     case "resolved":
@@ -48,12 +48,15 @@ function TintedChip({ tint, ...props }: Omit<ChipProps, "color"> & { tint: strin
       variant="outlined"
       {...props}
       sx={{
+        borderRadius: 0,
+        fontFamily: '"JetBrains Mono", monospace',
         fontWeight: 700,
         fontSize: "0.72rem",
-        letterSpacing: "0.02em",
-        bgcolor: alpha(tint, 0.1),
+        letterSpacing: "0.04em",
+        textTransform: "uppercase",
+        bgcolor: alpha(tint, 0.08),
         color: tint,
-        borderColor: alpha(tint, 0.35),
+        borderColor: alpha(tint, 0.45),
         ...props.sx,
       }}
     />
@@ -88,11 +91,16 @@ export function ConfidenceChip({ confidence }: { confidence: HypothesisConfidenc
         label="unknown"
         title="Strength of support — not a probability"
         sx={{
+          borderRadius: 0,
+          fontFamily: '"JetBrains Mono", monospace',
           fontWeight: 700,
           fontSize: "0.72rem",
+          letterSpacing: "0.04em",
+          textTransform: "uppercase",
           borderStyle: "dashed",
-          borderColor: theme.custom.classroomSlate300,
-          color: theme.custom.classroomSlate600,
+          borderColor: "rgba(122, 139, 128, 0.4)",
+          color: theme.custom.classroomSlate500,
+          bgcolor: "transparent",
         }}
       />
     );
@@ -102,7 +110,7 @@ export function ConfidenceChip({ confidence }: { confidence: HypothesisConfidenc
       ? theme.custom.campusGreen600
       : confidence === "medium"
         ? theme.custom.torchGold600
-        : theme.custom.classroomSlate500;
+        : theme.custom.brickTerracotta500;
   return (
     <TintedChip
       tint={tint}

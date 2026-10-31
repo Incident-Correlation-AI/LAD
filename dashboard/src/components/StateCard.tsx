@@ -4,8 +4,8 @@ import type { ReactNode } from "react";
 import { ApiError } from "../api/client";
 
 /**
- * Single card for loading / empty / error. Keeps the ARIA roles the tests and
- * screen readers rely on.
+ * Single terminal card for loading / empty / error states.
+ * Preserves the ARIA roles the tests and screen readers rely on.
  */
 export function StateCard({
   icon,
@@ -26,18 +26,23 @@ export function StateCard({
 }) {
   const theme = useTheme();
   const accent =
-    accentColor ?? (tone === "error" ? theme.custom.errorRed500 : theme.custom.nileBlue600);
+    accentColor ?? (tone === "error" ? theme.custom.errorRed500 : theme.custom.torchGold600);
 
   return (
     <Paper
       role={role}
       aria-live={role === "status" ? "polite" : undefined}
       sx={{
-        maxWidth: 560,
+        maxWidth: 580,
         mx: "auto",
         mt: 4,
         p: 4,
         textAlign: "center",
+        bgcolor: "#0B0F0C",
+        border: `1px solid ${tone === "error" ? "rgba(239, 68, 68, 0.5)" : "rgba(122, 139, 128, 0.35)"}`,
+        borderRadius: 0,
+        boxShadow: "none",
+        fontFamily: '"JetBrains Mono", monospace',
       }}
     >
       <Box
@@ -46,24 +51,46 @@ export function StateCard({
           height: 48,
           mx: "auto",
           mb: 2,
-          borderRadius: 2,
+          borderRadius: 0,
+          border: `1px solid ${alpha(accent, 0.4)}`,
           display: "grid",
           placeItems: "center",
-          bgcolor: alpha(accent, 0.1),
+          bgcolor: alpha(accent, 0.08),
           color: accent,
+          fontSize: "1.25rem",
         }}
       >
         {icon}
       </Box>
 
-      <Typography variant="h6" sx={{ mb: 1, color: theme.custom.classroomSlate900 }}>
+      <Typography
+        variant="h6"
+        sx={{
+          mb: 1,
+          fontFamily: '"JetBrains Mono", monospace',
+          fontWeight: 700,
+          color: theme.custom.classroomSlate900,
+        }}
+      >
         {title}
       </Typography>
 
       <Typography
         variant="body2"
         component="div"
-        sx={{ color: theme.custom.classroomSlate600, "& code": { fontSize: "0.78rem" } }}
+        sx={{
+          color: theme.custom.classroomSlate500,
+          fontFamily: '"JetBrains Mono", monospace',
+          lineHeight: 1.6,
+          "& code": {
+            fontSize: "0.8rem",
+            color: "#E8A65D",
+            bgcolor: "rgba(232, 166, 93, 0.08)",
+            px: 0.5,
+            py: 0.25,
+            border: "1px solid rgba(232, 166, 93, 0.2)",
+          },
+        }}
       >
         {message}
       </Typography>
@@ -137,8 +164,21 @@ export function ApiErrorState({ error, retry }: { error: unknown; retry?: () => 
       }
       action={
         retry ? (
-          <Button variant="contained" onClick={retry}>
-            Try again
+          <Button
+            variant="outlined"
+            onClick={retry}
+            sx={{
+              borderRadius: 0,
+              fontFamily: '"JetBrains Mono", monospace',
+              color: "#D7E0D9",
+              borderColor: "rgba(122, 139, 128, 0.4)",
+              "&:hover": {
+                borderColor: "#E8A65D",
+                color: "#E8A65D",
+              },
+            }}
+          >
+            [ Try again ]
           </Button>
         ) : undefined
       }

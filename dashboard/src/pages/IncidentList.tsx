@@ -119,6 +119,7 @@ export function IncidentList() {
 
   return (
     <Box>
+      {/* Terminal Section Header */}
       <Stack
         direction="row"
         justifyContent="space-between"
@@ -128,15 +129,49 @@ export function IncidentList() {
         mb={2.5}
       >
         <Box>
-          <Typography variant="h5" sx={{ color: theme.custom.classroomSlate900, mb: 0.5 }}>
+          <Typography
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: "0.85rem",
+              color: "#7A8B80",
+              mb: 0.5,
+            }}
+          >
+            $ ./lad-telemetry --overview
+          </Typography>
+          <Typography
+            variant="h5"
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontWeight: 700,
+              color: theme.custom.classroomSlate900,
+              letterSpacing: "-0.01em",
+              mb: 0.5,
+            }}
+          >
             Incidents
           </Typography>
-          <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500 }}>
+          <Typography
+            variant="body2"
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              color: theme.custom.classroomSlate500,
+              fontSize: "0.82rem",
+            }}
+          >
             Correlated anomalies with evidence. Scores are detector-specific
             unusualness values, not probabilities.
           </Typography>
           {breakdown.latest ? (
-            <Typography variant="caption" sx={{ color: theme.custom.classroomSlate400 }}>
+            <Typography
+              variant="caption"
+              sx={{
+                display: "block",
+                fontFamily: '"JetBrains Mono", monospace',
+                color: "#E8A65D",
+                mt: 0.5,
+              }}
+            >
               Newest incident {formatRelative(breakdown.latest)}
             </Typography>
           ) : null}
@@ -145,12 +180,23 @@ export function IncidentList() {
         <Button
           size="small"
           variant="outlined"
-          startIcon={<RefreshIcon />}
+          startIcon={<RefreshIcon sx={{ fontSize: 16 }} />}
           onClick={() => {
             void query.refetch();
             breakdown.refetch();
           }}
           disabled={query.isFetching}
+          sx={{
+            fontFamily: '"JetBrains Mono", monospace',
+            fontSize: "0.8rem",
+            borderRadius: 0,
+            color: "#D7E0D9",
+            borderColor: "rgba(122, 139, 128, 0.4)",
+            "&:hover": {
+              borderColor: "#E8A65D",
+              color: "#E8A65D",
+            },
+          }}
         >
           {query.isFetching ? "Refreshing…" : "Refresh"}
         </Button>
@@ -162,7 +208,12 @@ export function IncidentList() {
         <Typography
           variant="caption"
           role="status"
-          sx={{ display: "block", mb: 1.5, color: theme.custom.errorRed600 }}
+          sx={{
+            display: "block",
+            mb: 1.5,
+            fontFamily: '"JetBrains Mono", monospace',
+            color: theme.custom.errorRed500,
+          }}
         >
           Summary counts are unavailable right now. The incident table below is
           unaffected.
@@ -210,20 +261,45 @@ export function IncidentList() {
       </Grid>
 
       {/* Filters */}
-      <Paper sx={{ p: 2, mb: 2.5 }}>
+      <Paper
+        sx={{
+          p: 2,
+          mb: 2.5,
+          bgcolor: "#0B0F0C",
+          border: "1px solid rgba(122, 139, 128, 0.35)",
+          borderRadius: 0,
+        }}
+      >
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <FilterListIcon fontSize="small" sx={{ color: theme.custom.classroomSlate400 }} />
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-              Filters
+            <FilterListIcon fontSize="small" sx={{ color: theme.custom.classroomSlate500 }} />
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 700,
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: "0.8rem",
+                textTransform: "uppercase",
+                letterSpacing: "0.06em",
+                color: "#7A8B80",
+              }}
+            >
+              $ filter-query
             </Typography>
           </Stack>
           <Button
             size="small"
             disabled={!hasFilters}
             onClick={() => setSearchParams(new URLSearchParams(), { replace: true })}
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: "0.75rem",
+              borderRadius: 0,
+              color: hasFilters ? "#E8A65D" : "#7A8B80",
+              borderColor: "transparent",
+            }}
           >
-            Clear all
+            [ Clear all ]
           </Button>
         </Stack>
 
@@ -236,6 +312,11 @@ export function IncidentList() {
               label="Status"
               value={activeStatus ?? ""}
               onChange={(event) => updateParam("status", event.target.value)}
+              slotProps={{
+                inputLabel: {
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                },
+              }}
             >
               <MenuItem value="">Any status</MenuItem>
               {STATUSES.map((status) => (
@@ -254,6 +335,11 @@ export function IncidentList() {
               label="Severity"
               value={activeSeverity ?? ""}
               onChange={(event) => updateParam("severity", event.target.value)}
+              slotProps={{
+                inputLabel: {
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                },
+              }}
             >
               <MenuItem value="">Any severity</MenuItem>
               {SEVERITIES.map((severity) => (
@@ -272,6 +358,14 @@ export function IncidentList() {
               placeholder="web-01"
               value={searchParams.get("host") ?? ""}
               onChange={(event) => updateParam("host", event.target.value)}
+              slotProps={{
+                inputLabel: {
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                },
+                htmlInput: {
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.85rem" },
+                },
+              }}
             />
           </Grid>
 
@@ -283,6 +377,11 @@ export function IncidentList() {
               label="Window"
               value={activeSince}
               onChange={(event) => updateParam("since", event.target.value)}
+              slotProps={{
+                inputLabel: {
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                },
+              }}
             >
               {SINCE_OPTIONS.map((option) => (
                 <MenuItem key={option.value} value={option.value}>
@@ -299,7 +398,7 @@ export function IncidentList() {
         <StateCard
           role="status"
           title="Loading incidents"
-          icon={<CircularProgress size={22} />}
+          icon={<CircularProgress size={22} sx={{ color: "#E8A65D" }} />}
           message="Querying the incidents API…"
         />
       ) : null}
@@ -317,7 +416,14 @@ export function IncidentList() {
       ) : null}
 
       {incidents.length > 0 ? (
-        <Paper sx={{ overflow: "hidden" }}>
+        <Paper
+          sx={{
+            overflow: "hidden",
+            bgcolor: "#0B0F0C",
+            border: "1px solid rgba(122, 139, 128, 0.35)",
+            borderRadius: 0,
+          }}
+        >
           <TableContainer>
             <Table size="small">
               <TableHead>
@@ -345,12 +451,15 @@ export function IncidentList() {
                         component={RouterLink}
                         to={`/incidents/${encodeURIComponent(incident.incident_id)}`}
                         sx={{
-                          fontFamily: "monospace",
-                          fontSize: "0.8rem",
-                          color: theme.custom.nileBlue700,
+                          fontFamily: '"JetBrains Mono", monospace',
+                          fontSize: "0.82rem",
+                          color: "#E8A65D",
                           fontWeight: 600,
                           textDecoration: "none",
-                          "&:hover": { textDecoration: "underline" },
+                          "&:hover": {
+                            textDecoration: "underline",
+                            color: "#f0b46e",
+                          },
                         }}
                       >
                         {incident.incident_id}
@@ -362,13 +471,16 @@ export function IncidentList() {
                           <Typography
                             key={`${entity.host}-${entity.service ?? ""}-${idx}`}
                             variant="body2"
-                            sx={{ fontSize: "0.8rem" }}
+                            sx={{
+                              fontSize: "0.8rem",
+                              fontFamily: '"JetBrains Mono", monospace',
+                            }}
                           >
                             {entity.host}
                             {entity.service ? (
                               <Box
                                 component="span"
-                                sx={{ color: theme.custom.classroomSlate400 }}
+                                sx={{ color: theme.custom.classroomSlate500 }}
                               >
                                 {" "}
                                 / {entity.service}
@@ -379,14 +491,24 @@ export function IncidentList() {
                       ) : (
                         <Typography
                           variant="body2"
-                          sx={{ fontSize: "0.8rem", color: theme.custom.classroomSlate400 }}
+                          sx={{
+                            fontSize: "0.8rem",
+                            fontFamily: '"JetBrains Mono", monospace',
+                            color: theme.custom.classroomSlate500,
+                          }}
                         >
                           —
                         </Typography>
                       )}
                     </TableCell>
                     <TableCell>
-                      <Typography sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
+                      <Typography
+                        sx={{
+                          fontFamily: '"JetBrains Mono", monospace',
+                          fontSize: "0.78rem",
+                          color: theme.custom.classroomSlate500,
+                        }}
+                      >
                         {incident.detector || "—"}
                       </Typography>
                     </TableCell>
@@ -394,9 +516,10 @@ export function IncidentList() {
                       <Typography
                         title="Detector-specific unusualness — not a probability"
                         sx={{
-                          fontFamily: "monospace",
-                          fontSize: "0.8rem",
-                          fontWeight: 600,
+                          fontFamily: '"JetBrains Mono", monospace',
+                          fontSize: "0.82rem",
+                          fontWeight: 700,
+                          color: "#D7E0D9",
                           fontVariantNumeric: "tabular-nums",
                         }}
                       >
@@ -409,7 +532,11 @@ export function IncidentList() {
                         dateTime={incident.created_at}
                         title={formatTimestamp(incident.created_at)}
                         variant="body2"
-                        sx={{ fontSize: "0.8rem", color: theme.custom.classroomSlate600 }}
+                        sx={{
+                          fontSize: "0.78rem",
+                          fontFamily: '"JetBrains Mono", monospace',
+                          color: theme.custom.classroomSlate500,
+                        }}
                       >
                         {formatRelative(incident.created_at)}
                       </Typography>
@@ -427,6 +554,7 @@ export function IncidentList() {
               alignItems: "center",
               p: 1.5,
               borderTop: `1px solid ${theme.palette.divider}`,
+              bgcolor: "#0B0F0C",
             }}
           >
             {query.hasNextPage ? (
@@ -435,11 +563,28 @@ export function IncidentList() {
                 variant="outlined"
                 disabled={query.isFetchingNextPage}
                 onClick={() => void query.fetchNextPage()}
+                sx={{
+                  fontFamily: '"JetBrains Mono", monospace',
+                  fontSize: "0.8rem",
+                  borderRadius: 0,
+                  color: "#D7E0D9",
+                  borderColor: "rgba(122, 139, 128, 0.4)",
+                  "&:hover": {
+                    borderColor: "#E8A65D",
+                    color: "#E8A65D",
+                  },
+                }}
               >
                 {query.isFetchingNextPage ? "Loading…" : "Load more"}
               </Button>
             ) : (
-              <Typography variant="caption" sx={{ color: theme.custom.classroomSlate400 }}>
+              <Typography
+                variant="caption"
+                sx={{
+                  fontFamily: '"JetBrains Mono", monospace',
+                  color: theme.custom.classroomSlate500,
+                }}
+              >
                 End of results.
               </Typography>
             )}
@@ -448,18 +593,51 @@ export function IncidentList() {
       ) : null}
 
       {/* Chart */}
-      <Paper sx={{ p: 2.5, mt: 2.5 }}>
+      <Paper
+        sx={{
+          p: 2.5,
+          mt: 2.5,
+          bgcolor: "#0B0F0C",
+          border: "1px solid rgba(122, 139, 128, 0.35)",
+          borderRadius: 0,
+        }}
+      >
         <Stack direction="row" justifyContent="space-between" alignItems="baseline" mb={1}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
-            Incidents by severity
-          </Typography>
-          <Typography variant="caption" sx={{ color: theme.custom.classroomSlate400 }}>
+          <Box>
+            <Typography
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: "0.75rem",
+                color: "#7A8B80",
+                mb: 0.25,
+              }}
+            >
+              $ ./lad-histogram --by-severity
+            </Typography>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontWeight: 700,
+                color: theme.custom.classroomSlate900,
+              }}
+            >
+              Incidents by severity
+            </Typography>
+          </Box>
+          <Typography
+            variant="caption"
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              color: theme.custom.classroomSlate500,
+            }}
+          >
             at most 100 per status
           </Typography>
         </Stack>
         {breakdown.isLoading ? (
           <Box sx={{ display: "grid", placeItems: "center", height: 180 }}>
-            <CircularProgress size={22} />
+            <CircularProgress size={22} sx={{ color: "#E8A65D" }} />
           </Box>
         ) : (
           <SeverityChart counts={breakdown.severity} />

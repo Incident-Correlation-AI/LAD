@@ -34,15 +34,38 @@ function Section({
 }) {
   const theme = useTheme();
   return (
-    <Paper sx={{ p: 2.5, height: "100%" }}>
+    <Paper
+      sx={{
+        p: 2.5,
+        height: "100%",
+        bgcolor: "#0B0F0C",
+        border: "1px solid rgba(122, 139, 128, 0.35)",
+        borderRadius: 0,
+      }}
+    >
       <Stack direction="row" justifyContent="space-between" alignItems="baseline" gap={2} mb={0.5}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
+        <Typography
+          variant="subtitle1"
+          sx={{
+            fontWeight: 700,
+            fontFamily: '"JetBrains Mono", monospace',
+            color: theme.custom.classroomSlate900,
+          }}
+        >
           {title}
         </Typography>
         {aside}
       </Stack>
       {subtitle ? (
-        <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500, mb: 2 }}>
+        <Typography
+          variant="body2"
+          sx={{
+            color: theme.custom.classroomSlate500,
+            fontFamily: '"JetBrains Mono", monospace',
+            fontSize: "0.82rem",
+            mb: 2,
+          }}
+        >
           {subtitle}
         </Typography>
       ) : (
@@ -64,17 +87,33 @@ function Meta({ label, children, hint }: { label: string; children: ReactNode; h
           textTransform: "uppercase",
           letterSpacing: "0.06em",
           fontWeight: 700,
-          color: theme.custom.classroomSlate400,
+          fontFamily: '"JetBrains Mono", monospace',
+          color: theme.custom.classroomSlate500,
           mb: 0.25,
         }}
       >
         {label}
       </Typography>
-      <Typography variant="body2" sx={{ fontWeight: 600, color: theme.custom.classroomSlate800 }}>
+      <Typography
+        variant="body2"
+        sx={{
+          fontWeight: 600,
+          fontFamily: '"JetBrains Mono", monospace',
+          color: theme.custom.classroomSlate900,
+        }}
+      >
         {children}
       </Typography>
       {hint ? (
-        <Typography variant="caption" sx={{ color: theme.custom.classroomSlate400 }}>
+        <Typography
+          variant="caption"
+          sx={{
+            display: "block",
+            fontFamily: '"JetBrains Mono", monospace',
+            color: theme.custom.classroomSlate500,
+            fontSize: "0.72rem",
+          }}
+        >
           {hint}
         </Typography>
       ) : null}
@@ -93,7 +132,7 @@ export function IncidentDetail() {
       <StateCard
         role="status"
         title="Loading incident"
-        icon={<CircularProgress size={22} />}
+        icon={<CircularProgress size={22} sx={{ color: "#E8A65D" }} />}
         message="Fetching the incident record…"
       />
     );
@@ -114,8 +153,20 @@ export function IncidentDetail() {
         component={RouterLink}
         to="/"
         size="small"
-        startIcon={<ArrowBackIcon />}
-        sx={{ mb: 2, ml: -1, color: theme.custom.classroomSlate600 }}
+        startIcon={<ArrowBackIcon sx={{ fontSize: 16 }} />}
+        sx={{
+          mb: 2,
+          ml: -0.5,
+          color: "#D7E0D9",
+          fontFamily: '"JetBrains Mono", monospace',
+          fontSize: "0.8rem",
+          borderRadius: 0,
+          borderColor: "rgba(122, 139, 128, 0.35)",
+          "&:hover": {
+            borderColor: "#E8A65D",
+            color: "#E8A65D",
+          },
+        }}
       >
         All incidents
       </Button>
@@ -130,12 +181,22 @@ export function IncidentDetail() {
       >
         <Box sx={{ minWidth: 0 }}>
           <Typography
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: "0.8rem",
+              color: "#7A8B80",
+              mb: 0.5,
+            }}
+          >
+            $ lad-inspect --id
+          </Typography>
+          <Typography
             variant="h5"
             sx={{
-              fontFamily: "monospace",
+              fontFamily: '"JetBrains Mono", monospace',
               fontWeight: 700,
               letterSpacing: "-0.02em",
-              color: theme.custom.classroomSlate900,
+              color: "#E8A65D",
               wordBreak: "break-all",
             }}
           >
@@ -146,7 +207,7 @@ export function IncidentDetail() {
             <StatusChip status={incident.status} />
             <Typography
               variant="caption"
-              sx={{ fontFamily: "monospace", color: theme.custom.classroomSlate400 }}
+              sx={{ fontFamily: '"JetBrains Mono", monospace', color: theme.custom.classroomSlate500 }}
             >
               {incident.detector} · schema {incident.schema_version}
             </Typography>
@@ -158,13 +219,43 @@ export function IncidentDetail() {
             variant="outlined"
             disabled={incident.status !== "open" || acknowledge.isPending}
             onClick={() => acknowledge.mutate()}
+            sx={{
+              borderRadius: 0,
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: "0.8rem",
+              color: "#E8A65D",
+              borderColor: "rgba(232, 166, 93, 0.5)",
+              "&:hover": {
+                borderColor: "#f0b46e",
+                bgcolor: "rgba(232, 166, 93, 0.1)",
+              },
+              "&.Mui-disabled": {
+                borderColor: "rgba(122, 139, 128, 0.2)",
+                color: "rgba(122, 139, 128, 0.4)",
+              },
+            }}
           >
             {acknowledge.isPending ? "Acknowledging…" : "Acknowledge"}
           </Button>
           <Button
-            variant="contained"
+            variant="outlined"
             disabled={incident.status === "resolved" || resolve.isPending}
             onClick={() => resolve.mutate()}
+            sx={{
+              borderRadius: 0,
+              fontFamily: '"JetBrains Mono", monospace',
+              fontSize: "0.8rem",
+              color: "#4ADE80",
+              borderColor: "rgba(74, 222, 128, 0.5)",
+              "&:hover": {
+                borderColor: "#22c55e",
+                bgcolor: "rgba(74, 222, 128, 0.1)",
+              },
+              "&.Mui-disabled": {
+                borderColor: "rgba(122, 139, 128, 0.2)",
+                color: "rgba(122, 139, 128, 0.4)",
+              },
+            }}
           >
             {resolve.isPending ? "Resolving…" : "Resolve"}
           </Button>
@@ -177,10 +268,12 @@ export function IncidentDetail() {
           sx={{
             mb: 2.5,
             p: 1.5,
-            bgcolor: theme.custom.errorRed100,
-            borderColor: theme.custom.errorRed300,
-            color: theme.custom.errorRed700,
+            bgcolor: "rgba(239, 68, 68, 0.08)",
+            border: "1px solid #ef4444",
+            borderRadius: 0,
+            color: "#EF4444",
             fontSize: "0.85rem",
+            fontFamily: '"JetBrains Mono", monospace',
           }}
         >
           Action failed: {actionError instanceof Error ? actionError.message : String(actionError)}
@@ -196,7 +289,7 @@ export function IncidentDetail() {
                   <Box
                     component="span"
                     title="Detector-specific unusualness — not a probability"
-                    sx={{ fontFamily: "monospace", fontSize: "1.05rem" }}
+                    sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: "1.05rem", color: "#E8A65D" }}
                   >
                     {formatAnomalyScore(incident.anomaly_score)}
                   </Box>
@@ -219,7 +312,7 @@ export function IncidentDetail() {
               {incident.model_versions && Object.keys(incident.model_versions).length ? (
                 <Grid size={{ xs: 12, sm: 4 }}>
                   <Meta label="Model versions">
-                    <Box component="span" sx={{ fontFamily: "monospace", fontSize: "0.75rem" }}>
+                    <Box component="span" sx={{ fontFamily: '"JetBrains Mono", monospace', fontSize: "0.75rem" }}>
                       {Object.entries(incident.model_versions)
                         .map(([name, version]) => `${name} ${version}`)
                         .join(" · ")}
@@ -237,16 +330,22 @@ export function IncidentDetail() {
               {(incident.affected_entities ?? []).length > 0 ? (
                 (incident.affected_entities ?? []).map((entity, idx) => (
                   <Box key={`${entity.host}-${entity.service ?? ""}-${entity.source ?? ""}-${idx}`}>
-                    <Typography variant="body2" sx={{ fontWeight: 700 }}>
+                    <Typography variant="body2" sx={{ fontWeight: 700, fontFamily: '"JetBrains Mono", monospace' }}>
                       {entity.host}
                     </Typography>
-                    <Typography variant="caption" sx={{ color: theme.custom.classroomSlate500 }}>
+                    <Typography
+                      variant="caption"
+                      sx={{ color: theme.custom.classroomSlate500, fontFamily: '"JetBrains Mono", monospace' }}
+                    >
                       {[entity.service, entity.source].filter(Boolean).join(" · ") || "—"}
                     </Typography>
                   </Box>
                 ))
               ) : (
-                <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500 }}>
+                <Typography
+                  variant="body2"
+                  sx={{ color: theme.custom.classroomSlate500, fontFamily: '"JetBrains Mono", monospace' }}
+                >
                   None recorded.
                 </Typography>
               )}
@@ -260,7 +359,8 @@ export function IncidentDetail() {
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
                 fontWeight: 700,
-                color: theme.custom.classroomSlate400,
+                fontFamily: '"JetBrains Mono", monospace',
+                color: theme.custom.classroomSlate500,
               }}
             >
               Observation windows
@@ -292,7 +392,10 @@ export function IncidentDetail() {
               ))}
             </Stack>
           ) : (
-            <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500 }}>
+            <Typography
+              variant="body2"
+              sx={{ color: theme.custom.classroomSlate500, fontFamily: '"JetBrains Mono", monospace' }}
+            >
               No hypothesis recorded for this incident.
             </Typography>
           )}
@@ -312,7 +415,10 @@ export function IncidentDetail() {
                 ))}
               </Box>
             ) : (
-              <Typography variant="body2" sx={{ color: theme.custom.classroomSlate500 }}>
+              <Typography
+                variant="body2"
+                sx={{ color: theme.custom.classroomSlate500, fontFamily: '"JetBrains Mono", monospace' }}
+              >
                 No checks suggested.
               </Typography>
             )}
