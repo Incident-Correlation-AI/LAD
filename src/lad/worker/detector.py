@@ -306,8 +306,20 @@ class AnomalyDetectionEngine:
         if self.detector is None and self.forest is None:
             logger.info("No ML model loaded. Operating in rule baseline mode.")
 
+        llm_provider = os.getenv("LAD_LLM_PROVIDER", "mock").strip().lower()
+        llm_endpoint = os.getenv("LAD_LLM_ENDPOINT", "").strip()
+        llm_model = os.getenv("LAD_LLM_MODEL", "").strip()
+        explain_env = os.getenv("LAD_CORRELATION_EXPLAIN", "true").lower()
+        explain = explain_env in ("true", "1", "yes")
+
         self.correlation_pipeline = EvidenceCorrelationPipeline(
-            CorrelationConfig(explain=False, require_supporting_events=False)
+            CorrelationConfig(
+                explain=explain,
+                llm_provider=llm_provider,
+                llm_endpoint=llm_endpoint,
+                llm_model=llm_model,
+                require_supporting_events=False,
+            )
         )
 
     def score_windows(self, windows: Sequence[NetworkWindow]) -> list[InferenceResult]:
