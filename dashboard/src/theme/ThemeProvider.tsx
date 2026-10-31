@@ -10,9 +10,9 @@ import { bodyFont, headingFont } from "./fonts";
  * JetBrains Mono monospace typography, sharp 1px borders, #0B0F0C canvas,
  * #D7E0D9 primary text, #7A8B80 dim accents, and #E8A65D amber highlight.
  */
-const CANVAS = "#0B0F0C";
+const CANVAS = "#050806";
 const SURFACE = "#0B0F0C";
-const LINE = "rgba(122, 139, 128, 0.35)";
+const LINE = "rgba(162, 181, 168, 0.4)";
 
 const theme = createTheme({
   palette: {
@@ -32,18 +32,19 @@ const theme = createTheme({
   shape: { borderRadius: 0 },
   typography: {
     fontFamily: bodyFont,
+    fontSize: 14,
     h1: { fontFamily: headingFont, fontWeight: 700 },
     h2: { fontFamily: headingFont, fontWeight: 700 },
     h3: { fontFamily: headingFont, fontWeight: 700 },
     h4: { fontFamily: headingFont, fontWeight: 700 },
-    h5: { fontFamily: headingFont, fontWeight: 600 },
-    h6: { fontFamily: headingFont, fontWeight: 600 },
-    subtitle1: { fontFamily: headingFont, fontWeight: 600 },
-    subtitle2: { fontFamily: headingFont, fontWeight: 600 },
-    body1: { fontFamily: bodyFont },
-    body2: { fontFamily: bodyFont },
-    button: { textTransform: "none", fontWeight: 600, fontFamily: bodyFont },
-    caption: { fontFamily: bodyFont },
+    h5: { fontFamily: headingFont, fontWeight: 700, fontSize: "1.5rem" },
+    h6: { fontFamily: headingFont, fontWeight: 700, fontSize: "1.25rem" },
+    subtitle1: { fontFamily: headingFont, fontWeight: 600, fontSize: "1.05rem" },
+    subtitle2: { fontFamily: headingFont, fontWeight: 600, fontSize: "0.95rem" },
+    body1: { fontFamily: bodyFont, fontSize: "0.95rem", lineHeight: 1.6 },
+    body2: { fontFamily: bodyFont, fontSize: "0.9rem", lineHeight: 1.55 },
+    button: { textTransform: "none", fontWeight: 600, fontFamily: bodyFont, fontSize: "0.88rem" },
+    caption: { fontFamily: bodyFont, fontSize: "0.82rem", lineHeight: 1.45 },
   },
   components: {
     MuiCssBaseline: {
@@ -53,13 +54,14 @@ const theme = createTheme({
           color: customColors.classroomSlate900,
           fontFamily: bodyFont,
           WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
         },
         "*": {
           borderRadius: "0 !important",
         },
         "::selection": {
           backgroundColor: "rgba(232, 166, 93, 0.3)",
-          color: "#D7E0D9",
+          color: "#FFFFFF",
         },
       },
     },
@@ -79,14 +81,37 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 0,
-          paddingInline: 16,
-          fontWeight: 600,
+          paddingInline: 18,
+          paddingBlock: 8,
+          fontSize: "0.88rem",
+          fontWeight: 700,
           fontFamily: bodyFont,
           textTransform: "none",
           border: `1px solid ${LINE}`,
+          color: customColors.classroomSlate900,
           "&:hover": {
             borderColor: customColors.torchGold600,
-            backgroundColor: "rgba(232, 166, 93, 0.08)",
+            backgroundColor: "rgba(232, 166, 93, 0.12)",
+            color: "#FFFFFF",
+          },
+          "&:active": {
+            backgroundColor: "rgba(232, 166, 93, 0.18)",
+          },
+          "&.Mui-disabled": {
+            borderColor: "rgba(162, 181, 168, 0.2)",
+            color: "rgba(162, 181, 168, 0.4)",
+          },
+        },
+        outlined: {
+          borderColor: "rgba(162, 181, 168, 0.5)",
+        },
+        contained: {
+          backgroundColor: "rgba(232, 166, 93, 0.16)",
+          border: `1px solid ${customColors.torchGold600}`,
+          color: "#FFFFFF",
+          "&:hover": {
+            backgroundColor: "rgba(232, 166, 93, 0.24)",
+            borderColor: "#f0b46e",
           },
         },
       },
@@ -96,7 +121,8 @@ const theme = createTheme({
         root: {
           borderRadius: 0,
           fontFamily: bodyFont,
-          fontWeight: 600,
+          fontWeight: 700,
+          fontSize: "0.8rem",
         },
       },
     },
@@ -109,7 +135,7 @@ const theme = createTheme({
           borderRadius: 0,
           backgroundColor: SURFACE,
           color: customColors.classroomSlate900,
-          fontSize: "0.875rem",
+          fontSize: "0.92rem",
           fontFamily: bodyFont,
           "& .MuiOutlinedInput-notchedOutline": {
             borderColor: LINE,
@@ -126,19 +152,22 @@ const theme = createTheme({
     MuiTableCell: {
       styleOverrides: {
         head: {
-          fontSize: "0.72rem",
-          letterSpacing: "0.06em",
+          fontSize: "0.82rem",
+          letterSpacing: "0.08em",
           textTransform: "uppercase",
-          fontWeight: 700,
-          color: customColors.classroomSlate500,
-          backgroundColor: "#111613",
+          fontWeight: 800,
+          color: "#C7D2CC",
+          backgroundColor: "#0F1512",
           borderBottom: `1px solid ${LINE}`,
-          paddingBlock: 12,
+          paddingBlock: 14,
+          paddingInline: 22,
           fontFamily: bodyFont,
         },
         root: {
           borderBottom: `1px solid rgba(122, 139, 128, 0.2)`,
-          paddingBlock: 12,
+          paddingBlock: 14,
+          paddingInline: 22,
+          fontSize: "0.92rem",
           color: customColors.classroomSlate900,
           fontFamily: bodyFont,
         },

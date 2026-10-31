@@ -1,4 +1,4 @@
-import { Box, Paper, Typography, alpha, useTheme } from "@mui/material";
+import { Box, Paper, Typography, useTheme } from "@mui/material";
 import type { ReactNode } from "react";
 
 /**
@@ -23,28 +23,29 @@ export function StatCard({
   return (
     <Paper
       sx={{
-        p: 2.5,
+        px: { xs: 2.5, md: 3 },
+        py: { xs: 2.25, md: 2.75 },
         height: "100%",
         display: "flex",
         alignItems: "flex-start",
         gap: 2,
         borderRadius: 0,
         bgcolor: "#0B0F0C",
-        border: "1px solid rgba(122, 139, 128, 0.3)",
+        border: "1px solid rgba(162, 181, 168, 0.45)",
         transition: "border-color 0.15s ease, background-color 0.15s ease",
         "&:hover": {
           borderColor: "#E8A65D",
-          bgcolor: "rgba(232, 166, 93, 0.03)",
+          bgcolor: "rgba(232, 166, 93, 0.05)",
         },
       }}
     >
       <Box
         sx={{
-          width: 38,
-          height: 38,
+          width: 46,
+          height: 46,
           borderRadius: 0,
-          border: `1px solid ${alpha(color, 0.4)}`,
-          bgcolor: alpha(color, 0.08),
+          border: "1px solid rgba(162, 181, 168, 0.5)",
+          bgcolor: "rgba(15, 21, 18, 0.9)",
           color,
           display: "grid",
           placeItems: "center",
@@ -54,16 +55,17 @@ export function StatCard({
         {icon}
       </Box>
 
-      <Box sx={{ minWidth: 0 }}>
+      <Box sx={{ minWidth: 0, flex: 1 }}>
         <Typography
           variant="caption"
           sx={{
             display: "block",
             textTransform: "uppercase",
-            letterSpacing: "0.06em",
-            fontWeight: 700,
+            letterSpacing: "0.1em",
+            fontWeight: 800,
+            fontSize: "0.8rem",
             fontFamily: '"JetBrains Mono", monospace',
-            color: theme.custom.classroomSlate500,
+            color: "#C7D2CC",
             lineHeight: 1.4,
           }}
         >
@@ -72,11 +74,12 @@ export function StatCard({
         <Typography
           sx={{
             fontFamily: '"JetBrains Mono", monospace',
-            fontWeight: 700,
-            fontSize: "1.65rem",
-            lineHeight: 1.2,
-            color: theme.custom.classroomSlate900,
+            fontWeight: 800,
+            fontSize: "2.25rem",
+            lineHeight: 1.15,
+            color: "#FFFFFF",
             fontVariantNumeric: "tabular-nums",
+            my: 0.25,
           }}
         >
           {typeof value === "number" ? value.toLocaleString() : value}
@@ -88,7 +91,8 @@ export function StatCard({
               display: "block",
               fontFamily: '"JetBrains Mono", monospace',
               color: theme.custom.classroomSlate500,
-              mt: 0.25,
+              fontSize: "0.82rem",
+              mt: 0.35,
             }}
           >
             {caption}

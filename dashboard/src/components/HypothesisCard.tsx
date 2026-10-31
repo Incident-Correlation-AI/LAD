@@ -10,10 +10,11 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
   return (
     <Box
       sx={{
-        p: 2.5,
+        px: { xs: 2.5, md: 3.5 },
+        py: { xs: 2.5, md: 3.25 },
         borderRadius: 0,
         bgcolor: "#0B0F0C",
-        border: `1px solid ${isUnknown ? "rgba(122, 139, 128, 0.4)" : "rgba(122, 139, 128, 0.35)"}`,
+        border: `1px solid ${isUnknown ? "rgba(162, 181, 168, 0.5)" : "rgba(162, 181, 168, 0.45)"}`,
         borderStyle: isUnknown ? "dashed" : "solid",
         fontFamily: '"JetBrains Mono", monospace',
       }}
@@ -24,8 +25,8 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
             fontWeight: 600,
             color: theme.custom.classroomSlate900,
             fontFamily: '"JetBrains Mono", monospace',
-            fontSize: "0.9rem",
-            lineHeight: 1.5,
+            fontSize: "1.02rem",
+            lineHeight: 1.6,
           }}
         >
           {hypothesis.statement}
@@ -33,52 +34,74 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
         <ConfidenceChip confidence={hypothesis.confidence} />
       </Stack>
 
-      <Stack direction="row" spacing={3} mt={2}>
-        <Box>
+      <Stack direction="row" spacing={1.5} mt={2.5} flexWrap="wrap">
+        <Box
+          sx={{
+            px: 2.25,
+            py: 1.25,
+            bgcolor: "#0F1512",
+            border: "1px solid rgba(162, 181, 168, 0.4)",
+            minWidth: 150,
+          }}
+        >
           <Typography
             variant="caption"
             sx={{
               display: "block",
               textTransform: "uppercase",
-              letterSpacing: "0.06em",
-              fontWeight: 700,
+              letterSpacing: "0.1em",
+              fontWeight: 800,
               fontFamily: '"JetBrains Mono", monospace',
-              color: theme.custom.classroomSlate500,
+              color: "#C7D2CC",
+              fontSize: "0.78rem",
             }}
           >
             Supporting
           </Typography>
           <Typography
             sx={{
-              fontWeight: 700,
+              fontWeight: 800,
               fontFamily: '"JetBrains Mono", monospace',
               color: theme.custom.campusGreen600,
-              fontSize: "1.1rem",
+              fontSize: "1.5rem",
+              lineHeight: 1.2,
+              mt: 0.25,
             }}
           >
             {(hypothesis.supporting_event_ids ?? []).length}
           </Typography>
         </Box>
-        <Box>
+        <Box
+          sx={{
+            px: 2.25,
+            py: 1.25,
+            bgcolor: "#0F1512",
+            border: "1px solid rgba(162, 181, 168, 0.4)",
+            minWidth: 150,
+          }}
+        >
           <Typography
             variant="caption"
             sx={{
               display: "block",
               textTransform: "uppercase",
-              letterSpacing: "0.06em",
-              fontWeight: 700,
+              letterSpacing: "0.1em",
+              fontWeight: 800,
               fontFamily: '"JetBrains Mono", monospace',
-              color: theme.custom.classroomSlate500,
+              color: "#C7D2CC",
+              fontSize: "0.78rem",
             }}
           >
             Contradicting
           </Typography>
           <Typography
             sx={{
-              fontWeight: 700,
+              fontWeight: 800,
               fontFamily: '"JetBrains Mono", monospace',
               color: theme.custom.brickTerracotta500,
-              fontSize: "1.1rem",
+              fontSize: "1.5rem",
+              lineHeight: 1.2,
+              mt: 0.25,
             }}
           >
             {(hypothesis.contradicting_event_ids ?? []).length}
@@ -90,12 +113,13 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
         variant="caption"
         sx={{
           display: "block",
-          mt: 2,
-          mb: 0.5,
+          mt: 2.5,
+          mb: 1,
           fontWeight: 700,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
           fontFamily: '"JetBrains Mono", monospace',
+          fontSize: "0.85rem",
           color: theme.custom.classroomSlate500,
         }}
       >
@@ -109,8 +133,9 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
               key={item}
               sx={{
                 color: theme.custom.classroomSlate500,
-                fontSize: "0.82rem",
-                mb: 0.5,
+                fontSize: "0.92rem",
+                mb: 0.75,
+                lineHeight: 1.5,
               }}
             >
               {item}
@@ -124,7 +149,8 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
             color: theme.custom.classroomSlate500,
             fontStyle: "italic",
             fontFamily: '"JetBrains Mono", monospace',
-            fontSize: "0.8rem",
+            fontSize: "0.88rem",
+            py: 0.5,
           }}
         >
           None identified.
@@ -137,17 +163,17 @@ export function HypothesisCard({ hypothesis }: { hypothesis: Hypothesis }) {
           variant="outlined"
           label="An unknown hypothesis is a valid result — evidence does not decide between explanations."
           sx={{
-            mt: 2,
+            mt: 2.5,
             borderRadius: 0,
             borderStyle: "dashed",
-            borderColor: "rgba(122, 139, 128, 0.4)",
-            bgcolor: "rgba(122, 139, 128, 0.06)",
+            borderColor: "rgba(162, 181, 168, 0.45)",
+            bgcolor: "rgba(162, 181, 168, 0.08)",
             color: theme.custom.classroomSlate500,
             fontFamily: '"JetBrains Mono", monospace',
-            fontWeight: 500,
-            fontSize: "0.72rem",
+            fontWeight: 600,
+            fontSize: "0.82rem",
             height: "auto",
-            "& .MuiChip-label": { py: 0.75, whiteSpace: "normal" },
+            "& .MuiChip-label": { py: 1, px: 1.5, whiteSpace: "normal" },
           }}
         />
       ) : null}

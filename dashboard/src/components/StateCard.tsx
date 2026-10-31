@@ -66,9 +66,10 @@ export function StateCard({
       <Typography
         variant="h6"
         sx={{
-          mb: 1,
+          mb: 1.5,
           fontFamily: '"JetBrains Mono", monospace',
           fontWeight: 700,
+          fontSize: "1.25rem",
           color: theme.custom.classroomSlate900,
         }}
       >
@@ -81,14 +82,15 @@ export function StateCard({
         sx={{
           color: theme.custom.classroomSlate500,
           fontFamily: '"JetBrains Mono", monospace',
-          lineHeight: 1.6,
+          fontSize: "0.92rem",
+          lineHeight: 1.65,
           "& code": {
-            fontSize: "0.8rem",
+            fontSize: "0.88rem",
             color: "#E8A65D",
             bgcolor: "rgba(232, 166, 93, 0.08)",
-            px: 0.5,
-            py: 0.25,
-            border: "1px solid rgba(232, 166, 93, 0.2)",
+            px: 0.75,
+            py: 0.35,
+            border: "1px solid rgba(232, 166, 93, 0.25)",
           },
         }}
       >

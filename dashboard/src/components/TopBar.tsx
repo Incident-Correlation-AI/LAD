@@ -28,10 +28,10 @@ export function TopBar() {
     >
       <Box
         sx={{
-          maxWidth: 1240,
+          maxWidth: 1320,
           mx: "auto",
-          px: { xs: 2, md: 4 },
-          height: 56,
+          px: { xs: 3, sm: 5, md: 7, lg: 9 },
+          height: 60,
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -43,24 +43,24 @@ export function TopBar() {
           <Stack direction="row" spacing={0.75} alignItems="center" sx={{ mr: 0.5 }}>
             <Box
               sx={{
-                width: 9,
-                height: 9,
+                width: 10,
+                height: 10,
                 borderRadius: "50% !important",
                 bgcolor: "#ef4444",
               }}
             />
             <Box
               sx={{
-                width: 9,
-                height: 9,
+                width: 10,
+                height: 10,
                 borderRadius: "50% !important",
                 bgcolor: "#eab308",
               }}
             />
             <Box
               sx={{
-                width: 9,
-                height: 9,
+                width: 10,
+                height: 10,
                 borderRadius: "50% !important",
                 bgcolor: "#22c55e",
               }}
@@ -85,8 +85,9 @@ export function TopBar() {
               component="span"
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
-                fontSize: "0.85rem",
-                color: "#7A8B80",
+                fontSize: "0.92rem",
+                color: "#A2B5A8",
+                fontWeight: 600,
                 display: { xs: "none", sm: "inline" },
               }}
             >
@@ -97,7 +98,7 @@ export function TopBar() {
               sx={{
                 fontFamily: '"JetBrains Mono", monospace',
                 fontWeight: 700,
-                fontSize: "0.95rem",
+                fontSize: "1.05rem",
                 letterSpacing: "-0.01em",
                 color: "#E8A65D",
                 transition: "color 0.15s ease",
@@ -117,11 +118,11 @@ export function TopBar() {
             sx={{
               display: { xs: "none", md: "inline-flex" },
               borderRadius: 0,
-              borderColor: "rgba(122, 139, 128, 0.4)",
-              bgcolor: "rgba(122, 139, 128, 0.08)",
-              color: "#7A8B80",
+              borderColor: "rgba(162, 181, 168, 0.45)",
+              bgcolor: "rgba(162, 181, 168, 0.08)",
+              color: "#A2B5A8",
               fontFamily: '"JetBrains Mono", monospace',
-              fontSize: "0.72rem",
+              fontSize: "0.8rem",
               fontWeight: 600,
             }}
           />
@@ -133,11 +134,11 @@ export function TopBar() {
               label={`[ user: ${user.username} ]`}
               sx={{
                 borderRadius: 0,
-                borderColor: "rgba(232, 166, 93, 0.4)",
+                borderColor: "rgba(232, 166, 93, 0.5)",
                 bgcolor: "rgba(232, 166, 93, 0.08)",
                 color: "#E8A65D",
                 fontFamily: '"JetBrains Mono", monospace',
-                fontSize: "0.72rem",
+                fontSize: "0.8rem",
                 fontWeight: 600,
               }}
             />
@@ -150,16 +151,17 @@ export function TopBar() {
             sx={{
               display: { xs: "none", sm: "inline-flex" },
               borderRadius: 0,
-              px: 1.5,
-              py: 0.5,
-              borderColor: "rgba(122, 139, 128, 0.35)",
-              color: "#D7E0D9",
+              px: 1.75,
+              py: 0.6,
+              borderColor: "rgba(162, 181, 168, 0.4)",
+              color: "#F0F5F2",
               fontFamily: '"JetBrains Mono", monospace',
-              fontSize: "0.75rem",
+              fontSize: "0.82rem",
+              fontWeight: 600,
               textTransform: "none",
               "&:hover": {
-                borderColor: "#7A8B80",
-                bgcolor: "rgba(122, 139, 128, 0.1)",
+                borderColor: "#A2B5A8",
+                bgcolor: "rgba(162, 181, 168, 0.12)",
               },
             }}
           >
@@ -172,16 +174,17 @@ export function TopBar() {
             variant="outlined"
             sx={{
               borderRadius: 0,
-              px: 1.5,
-              py: 0.5,
-              borderColor: "rgba(239, 68, 68, 0.4)",
+              px: 1.75,
+              py: 0.6,
+              borderColor: "rgba(239, 68, 68, 0.5)",
               color: "#EF4444",
               fontFamily: '"JetBrains Mono", monospace',
-              fontSize: "0.75rem",
+              fontSize: "0.82rem",
+              fontWeight: 600,
               textTransform: "none",
               "&:hover": {
                 borderColor: "#EF4444",
-                bgcolor: "rgba(239, 68, 68, 0.1)",
+                bgcolor: "rgba(239, 68, 68, 0.12)",
               },
             }}
           >

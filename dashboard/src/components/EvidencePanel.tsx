@@ -1,4 +1,4 @@
-import { Box, List, ListItem, Typography, useTheme } from "@mui/material";
+import { Box, Grid, List, ListItem, Typography, useTheme } from "@mui/material";
 import type { ReactNode } from "react";
 
 import type { Evidence } from "../api/types";
@@ -6,25 +6,35 @@ import type { Evidence } from "../api/types";
 function Group({
   title,
   count,
+  tone,
   children,
 }: {
   title: string;
   count: number;
+  tone?: "positive" | "warning";
   children: ReactNode;
 }) {
   const theme = useTheme();
+  const accentColor =
+    tone === "positive"
+      ? theme.custom.campusGreen600
+      : tone === "warning"
+        ? theme.custom.brickTerracotta500
+        : theme.custom.classroomSlate500;
+
   return (
     <Box sx={{ mb: 2 }}>
       <Typography
         variant="caption"
         sx={{
           display: "block",
-          mb: 1,
+          mb: 1.5,
           fontWeight: 700,
           letterSpacing: "0.06em",
           textTransform: "uppercase",
           fontFamily: '"JetBrains Mono", monospace',
-          color: theme.custom.classroomSlate500,
+          fontSize: "0.85rem",
+          color: accentColor,
         }}
       >
         {title} · {count}
@@ -45,7 +55,8 @@ function IdList({ ids }: { ids: string[] }) {
           color: theme.custom.classroomSlate500,
           fontStyle: "italic",
           fontFamily: '"JetBrains Mono", monospace',
-          fontSize: "0.8rem",
+          fontSize: "0.88rem",
+          py: 0.75,
         }}
       >
         None recorded.
@@ -58,12 +69,16 @@ function IdList({ ids }: { ids: string[] }) {
         <ListItem
           key={id}
           sx={{
-            px: 1.5,
-            py: 0.6,
-            mb: 0.75,
+            px: 2,
+            py: 1,
+            mb: 1,
             borderRadius: 0,
-            bgcolor: "#111613",
-            border: "1px solid rgba(122, 139, 128, 0.25)",
+            bgcolor: "#0F1512",
+            border: "1px solid rgba(162, 181, 168, 0.4)",
+            transition: "border-color 0.15s ease",
+            "&:hover": {
+              borderColor: "rgba(232, 166, 93, 0.7)",
+            },
           }}
         >
           {/* Log-derived strings are attacker-controlled: rendered as text
@@ -71,8 +86,8 @@ function IdList({ ids }: { ids: string[] }) {
           <Typography
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
-              fontSize: "0.78rem",
-              color: "#D7E0D9",
+              fontSize: "0.88rem",
+              color: theme.custom.classroomSlate900,
               wordBreak: "break-all",
             }}
           >
@@ -92,32 +107,41 @@ export function EvidencePanel({ evidence }: { evidence: Evidence }) {
 
   return (
     <Box>
-      <Group title="Supporting evidence" count={supporting.length}>
-        <IdList ids={supporting} />
-      </Group>
+      <Grid container spacing={3}>
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Group title="Supporting evidence" count={supporting.length} tone="positive">
+            <IdList ids={supporting} />
+          </Group>
+        </Grid>
 
-      {/* Always rendered, even when empty: citing only supporting evidence
-          would not be honest about what the detector could not see. */}
-      <Group title="Contradicting evidence" count={contradicting.length}>
-        <IdList ids={contradicting} />
-      </Group>
+        {/* Always rendered, even when empty: citing only supporting evidence
+            would not be honest about what the detector could not see. */}
+        <Grid size={{ xs: 12, md: 6 }}>
+          <Group title="Contradicting evidence" count={contradicting.length} tone="warning">
+            <IdList ids={contradicting} />
+          </Group>
+        </Grid>
 
-      {refs.length ? (
-        <Group title="Redacted references" count={refs.length}>
-          <IdList ids={refs} />
-        </Group>
-      ) : null}
+        {refs.length ? (
+          <Grid size={{ xs: 12 }}>
+            <Group title="Redacted references" count={refs.length}>
+              <IdList ids={refs} />
+            </Group>
+          </Grid>
+        ) : null}
+      </Grid>
 
       <Typography
         variant="caption"
         sx={{
           display: "block",
-          mt: 1,
-          pt: 1,
+          mt: 2,
+          pt: 1.5,
           borderTop: `1px solid ${theme.palette.divider}`,
           fontFamily: '"JetBrains Mono", monospace',
           color: theme.custom.classroomSlate500,
-          fontSize: "0.72rem",
+          fontSize: "0.82rem",
+          lineHeight: 1.55,
         }}
       >
         Evidence IDs point back to the collector’s encrypted archive. Redacted

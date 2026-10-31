@@ -51,12 +51,13 @@ function TintedChip({ tint, ...props }: Omit<ChipProps, "color"> & { tint: strin
         borderRadius: 0,
         fontFamily: '"JetBrains Mono", monospace',
         fontWeight: 700,
-        fontSize: "0.72rem",
+        fontSize: "0.8rem",
         letterSpacing: "0.04em",
         textTransform: "uppercase",
-        bgcolor: alpha(tint, 0.08),
+        bgcolor: alpha(tint, 0.1),
         color: tint,
-        borderColor: alpha(tint, 0.45),
+        borderColor: alpha(tint, 0.5),
+        height: 26,
         ...props.sx,
       }}
     />
@@ -94,13 +95,14 @@ export function ConfidenceChip({ confidence }: { confidence: HypothesisConfidenc
           borderRadius: 0,
           fontFamily: '"JetBrains Mono", monospace',
           fontWeight: 700,
-          fontSize: "0.72rem",
+          fontSize: "0.8rem",
           letterSpacing: "0.04em",
           textTransform: "uppercase",
           borderStyle: "dashed",
-          borderColor: "rgba(122, 139, 128, 0.4)",
+          borderColor: "rgba(162, 181, 168, 0.45)",
           color: theme.custom.classroomSlate500,
           bgcolor: "transparent",
+          height: 26,
         }}
       />
     );

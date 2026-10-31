@@ -126,14 +126,15 @@ export function IncidentList() {
         alignItems="flex-start"
         gap={2}
         flexWrap="wrap"
-        mb={2.5}
+        mb={3}
       >
         <Box>
           <Typography
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
-              fontSize: "0.85rem",
-              color: "#7A8B80",
+              fontSize: "0.92rem",
+              fontWeight: 600,
+              color: "#A2B5A8",
               mb: 0.5,
             }}
           >
@@ -144,9 +145,10 @@ export function IncidentList() {
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
               fontWeight: 700,
+              fontSize: "1.65rem",
               color: theme.custom.classroomSlate900,
               letterSpacing: "-0.01em",
-              mb: 0.5,
+              mb: 0.75,
             }}
           >
             Incidents
@@ -156,7 +158,8 @@ export function IncidentList() {
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
               color: theme.custom.classroomSlate500,
-              fontSize: "0.82rem",
+              fontSize: "0.92rem",
+              lineHeight: 1.55,
             }}
           >
             Correlated anomalies with evidence. Scores are detector-specific
@@ -168,8 +171,10 @@ export function IncidentList() {
               sx={{
                 display: "block",
                 fontFamily: '"JetBrains Mono", monospace',
+                fontSize: "0.85rem",
+                fontWeight: 600,
                 color: "#E8A65D",
-                mt: 0.5,
+                mt: 0.75,
               }}
             >
               Newest incident {formatRelative(breakdown.latest)}
@@ -180,7 +185,7 @@ export function IncidentList() {
         <Button
           size="small"
           variant="outlined"
-          startIcon={<RefreshIcon sx={{ fontSize: 16 }} />}
+          startIcon={<RefreshIcon sx={{ fontSize: 18 }} />}
           onClick={() => {
             void query.refetch();
             breakdown.refetch();
@@ -188,13 +193,17 @@ export function IncidentList() {
           disabled={query.isFetching}
           sx={{
             fontFamily: '"JetBrains Mono", monospace',
-            fontSize: "0.8rem",
+            fontSize: "0.88rem",
+            fontWeight: 600,
             borderRadius: 0,
-            color: "#D7E0D9",
-            borderColor: "rgba(122, 139, 128, 0.4)",
+            px: 2,
+            py: 0.8,
+            color: theme.custom.classroomSlate900,
+            borderColor: "rgba(162, 181, 168, 0.4)",
             "&:hover": {
               borderColor: "#E8A65D",
               color: "#E8A65D",
+              bgcolor: "rgba(232, 166, 93, 0.08)",
             },
           }}
         >
@@ -210,8 +219,9 @@ export function IncidentList() {
           role="status"
           sx={{
             display: "block",
-            mb: 1.5,
+            mb: 2,
             fontFamily: '"JetBrains Mono", monospace',
+            fontSize: "0.88rem",
             color: theme.custom.errorRed500,
           }}
         >
@@ -221,10 +231,10 @@ export function IncidentList() {
       ) : null}
 
       {/* Stat tiles */}
-      <Grid container spacing={2} mb={2.5}>
+      <Grid container spacing={2.5} mb={3}>
         <Grid size={{ xs: 6, md: 3 }}>
           <StatCard
-            icon={<NewReleasesOutlinedIcon fontSize="small" />}
+            icon={<NewReleasesOutlinedIcon sx={{ fontSize: 22 }} />}
             title="Open"
             value={countLabel("open")}
             caption="awaiting triage"
@@ -233,7 +243,7 @@ export function IncidentList() {
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
           <StatCard
-            icon={<ScheduleOutlinedIcon fontSize="small" />}
+            icon={<ScheduleOutlinedIcon sx={{ fontSize: 22 }} />}
             title="Acknowledged"
             value={countLabel("acknowledged")}
             caption="in progress"
@@ -242,7 +252,7 @@ export function IncidentList() {
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
           <StatCard
-            icon={<DoneAllOutlinedIcon fontSize="small" />}
+            icon={<DoneAllOutlinedIcon sx={{ fontSize: 22 }} />}
             title="Resolved"
             value={countLabel("resolved")}
             caption="quiet period elapsed"
@@ -251,7 +261,7 @@ export function IncidentList() {
         </Grid>
         <Grid size={{ xs: 6, md: 3 }}>
           <StatCard
-            icon={<ErrorOutlineIcon fontSize="small" />}
+            icon={<ErrorOutlineIcon sx={{ fontSize: 22 }} />}
             title="Critical + high"
             value={impactLabel()}
             caption="highest impact"
@@ -260,28 +270,86 @@ export function IncidentList() {
         </Grid>
       </Grid>
 
-      {/* Filters */}
+      {/* Telemetry Chart: Incidents by severity (Placed before filters and table) */}
       <Paper
         sx={{
-          p: 2,
-          mb: 2.5,
+          px: { xs: 2.5, md: 3.5 },
+          py: { xs: 2.5, md: 3 },
+          mb: 3,
           bgcolor: "#0B0F0C",
           border: "1px solid rgba(122, 139, 128, 0.35)",
           borderRadius: 0,
         }}
       >
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1.5}>
+        <Stack direction="row" justifyContent="space-between" alignItems="baseline" mb={2} flexWrap="wrap" gap={1}>
+          <Box>
+            <Typography
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: "0.88rem",
+                color: "#A2B5A8",
+                mb: 0.25,
+                fontWeight: 600,
+              }}
+            >
+              $ ./lad-histogram --by-severity
+            </Typography>
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontWeight: 700,
+                fontSize: "1.05rem",
+                letterSpacing: "-0.01em",
+                color: theme.custom.classroomSlate900,
+              }}
+            >
+              Incidents by severity
+            </Typography>
+          </Box>
+          <Typography
+            variant="caption"
+            sx={{
+              fontFamily: '"JetBrains Mono", monospace',
+              color: theme.custom.classroomSlate500,
+              fontSize: "0.82rem",
+            }}
+          >
+            at most 100 per status
+          </Typography>
+        </Stack>
+        {breakdown.isLoading ? (
+          <Box sx={{ display: "grid", placeItems: "center", height: 180 }}>
+            <CircularProgress size={24} sx={{ color: "#E8A65D" }} />
+          </Box>
+        ) : (
+          <SeverityChart counts={breakdown.severity} />
+        )}
+      </Paper>
+
+      {/* Filters */}
+      <Paper
+        sx={{
+          px: { xs: 2.5, md: 3.5 },
+          py: { xs: 2.25, md: 2.5 },
+          mb: 3,
+          bgcolor: "#0B0F0C",
+          border: "1px solid rgba(122, 139, 128, 0.35)",
+          borderRadius: 0,
+        }}
+      >
+        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={2}>
           <Stack direction="row" spacing={1} alignItems="center">
-            <FilterListIcon fontSize="small" sx={{ color: theme.custom.classroomSlate500 }} />
+            <FilterListIcon sx={{ fontSize: 18, color: theme.custom.classroomSlate500 }} />
             <Typography
               variant="body2"
               sx={{
                 fontWeight: 700,
                 fontFamily: '"JetBrains Mono", monospace',
-                fontSize: "0.8rem",
+                fontSize: "0.88rem",
                 textTransform: "uppercase",
                 letterSpacing: "0.06em",
-                color: "#7A8B80",
+                color: "#A2B5A8",
               }}
             >
               $ filter-query
@@ -293,9 +361,10 @@ export function IncidentList() {
             onClick={() => setSearchParams(new URLSearchParams(), { replace: true })}
             sx={{
               fontFamily: '"JetBrains Mono", monospace',
-              fontSize: "0.75rem",
+              fontSize: "0.82rem",
+              fontWeight: 600,
               borderRadius: 0,
-              color: hasFilters ? "#E8A65D" : "#7A8B80",
+              color: hasFilters ? "#E8A65D" : theme.custom.classroomSlate500,
               borderColor: "transparent",
             }}
           >
@@ -303,7 +372,7 @@ export function IncidentList() {
           </Button>
         </Stack>
 
-        <Grid container spacing={2}>
+        <Grid container spacing={2.5}>
           <Grid size={{ xs: 6, md: 3 }}>
             <TextField
               select
@@ -314,7 +383,7 @@ export function IncidentList() {
               onChange={(event) => updateParam("status", event.target.value)}
               slotProps={{
                 inputLabel: {
-                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.85rem", color: theme.custom.classroomSlate500 },
                 },
               }}
             >
@@ -337,7 +406,7 @@ export function IncidentList() {
               onChange={(event) => updateParam("severity", event.target.value)}
               slotProps={{
                 inputLabel: {
-                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.85rem", color: theme.custom.classroomSlate500 },
                 },
               }}
             >
@@ -360,10 +429,10 @@ export function IncidentList() {
               onChange={(event) => updateParam("host", event.target.value)}
               slotProps={{
                 inputLabel: {
-                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.85rem", color: theme.custom.classroomSlate500 },
                 },
                 htmlInput: {
-                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.85rem" },
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.92rem" },
                 },
               }}
             />
@@ -379,7 +448,7 @@ export function IncidentList() {
               onChange={(event) => updateParam("since", event.target.value)}
               slotProps={{
                 inputLabel: {
-                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.8rem", color: "#7A8B80" },
+                  sx: { fontFamily: '"JetBrains Mono", monospace', fontSize: "0.85rem", color: theme.custom.classroomSlate500 },
                 },
               }}
             >
@@ -424,17 +493,54 @@ export function IncidentList() {
             borderRadius: 0,
           }}
         >
+          {/* Terminal Table Header Bar */}
+          <Box
+            sx={{
+              px: { xs: 2.5, md: 3.5 },
+              py: 1.5,
+              borderBottom: "1px solid rgba(122, 139, 128, 0.25)",
+              bgcolor: "#111613",
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: 1,
+            }}
+          >
+            <Typography
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: "0.88rem",
+                color: "#A2B5A8",
+                fontWeight: 700,
+                letterSpacing: "0.05em",
+              }}
+            >
+              $ ./lad-table --incidents
+            </Typography>
+            <Typography
+              sx={{
+                fontFamily: '"JetBrains Mono", monospace',
+                fontSize: "0.82rem",
+                fontWeight: 600,
+                color: theme.custom.classroomSlate500,
+              }}
+            >
+              {incidents.length} incident{incidents.length === 1 ? "" : "s"} listed
+            </Typography>
+          </Box>
+
           <TableContainer>
             <Table size="small">
               <TableHead>
                 <TableRow>
-                  <TableCell>Severity</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Incident</TableCell>
-                  <TableCell>Entities</TableCell>
-                  <TableCell>Detector</TableCell>
-                  <TableCell align="right">Score</TableCell>
-                  <TableCell>Created</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Severity</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Status</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Incident</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Entities</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Detector</TableCell>
+                  <TableCell align="right" sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Score</TableCell>
+                  <TableCell sx={{ fontSize: "0.82rem", fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "#A2B5A8" }}>Created</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -452,7 +558,7 @@ export function IncidentList() {
                         to={`/incidents/${encodeURIComponent(incident.incident_id)}`}
                         sx={{
                           fontFamily: '"JetBrains Mono", monospace',
-                          fontSize: "0.82rem",
+                          fontSize: "0.92rem",
                           color: "#E8A65D",
                           fontWeight: 600,
                           textDecoration: "none",
@@ -472,11 +578,12 @@ export function IncidentList() {
                             key={`${entity.host}-${entity.service ?? ""}-${idx}`}
                             variant="body2"
                             sx={{
-                              fontSize: "0.8rem",
+                              fontSize: "0.9rem",
                               fontFamily: '"JetBrains Mono", monospace',
+                              color: theme.custom.classroomSlate900,
                             }}
                           >
-                            {entity.host}
+                            <Box component="span" sx={{ fontWeight: 700 }}>{entity.host}</Box>
                             {entity.service ? (
                               <Box
                                 component="span"
@@ -492,7 +599,7 @@ export function IncidentList() {
                         <Typography
                           variant="body2"
                           sx={{
-                            fontSize: "0.8rem",
+                            fontSize: "0.9rem",
                             fontFamily: '"JetBrains Mono", monospace',
                             color: theme.custom.classroomSlate500,
                           }}
@@ -505,7 +612,7 @@ export function IncidentList() {
                       <Typography
                         sx={{
                           fontFamily: '"JetBrains Mono", monospace',
-                          fontSize: "0.78rem",
+                          fontSize: "0.88rem",
                           color: theme.custom.classroomSlate500,
                         }}
                       >
@@ -517,9 +624,9 @@ export function IncidentList() {
                         title="Detector-specific unusualness — not a probability"
                         sx={{
                           fontFamily: '"JetBrains Mono", monospace',
-                          fontSize: "0.82rem",
+                          fontSize: "0.95rem",
                           fontWeight: 700,
-                          color: "#D7E0D9",
+                          color: theme.custom.classroomSlate900,
                           fontVariantNumeric: "tabular-nums",
                         }}
                       >
@@ -533,9 +640,10 @@ export function IncidentList() {
                         title={formatTimestamp(incident.created_at)}
                         variant="body2"
                         sx={{
-                          fontSize: "0.78rem",
+                          fontSize: "0.88rem",
                           fontFamily: '"JetBrains Mono", monospace',
                           color: theme.custom.classroomSlate500,
+                          whiteSpace: "nowrap",
                         }}
                       >
                         {formatRelative(incident.created_at)}
@@ -552,7 +660,7 @@ export function IncidentList() {
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              p: 1.5,
+              p: 2.5,
               borderTop: `1px solid ${theme.palette.divider}`,
               bgcolor: "#0B0F0C",
             }}
@@ -565,13 +673,17 @@ export function IncidentList() {
                 onClick={() => void query.fetchNextPage()}
                 sx={{
                   fontFamily: '"JetBrains Mono", monospace',
-                  fontSize: "0.8rem",
+                  fontSize: "0.88rem",
+                  fontWeight: 600,
+                  px: 3,
+                  py: 0.8,
                   borderRadius: 0,
-                  color: "#D7E0D9",
-                  borderColor: "rgba(122, 139, 128, 0.4)",
+                  color: theme.custom.classroomSlate900,
+                  borderColor: "rgba(162, 181, 168, 0.4)",
                   "&:hover": {
                     borderColor: "#E8A65D",
                     color: "#E8A65D",
+                    bgcolor: "rgba(232, 166, 93, 0.08)",
                   },
                 }}
               >
@@ -583,6 +695,7 @@ export function IncidentList() {
                 sx={{
                   fontFamily: '"JetBrains Mono", monospace',
                   color: theme.custom.classroomSlate500,
+                  fontSize: "0.85rem",
                 }}
               >
                 End of results.
@@ -591,58 +704,6 @@ export function IncidentList() {
           </Box>
         </Paper>
       ) : null}
-
-      {/* Chart */}
-      <Paper
-        sx={{
-          p: 2.5,
-          mt: 2.5,
-          bgcolor: "#0B0F0C",
-          border: "1px solid rgba(122, 139, 128, 0.35)",
-          borderRadius: 0,
-        }}
-      >
-        <Stack direction="row" justifyContent="space-between" alignItems="baseline" mb={1}>
-          <Box>
-            <Typography
-              sx={{
-                fontFamily: '"JetBrains Mono", monospace',
-                fontSize: "0.75rem",
-                color: "#7A8B80",
-                mb: 0.25,
-              }}
-            >
-              $ ./lad-histogram --by-severity
-            </Typography>
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontFamily: '"JetBrains Mono", monospace',
-                fontWeight: 700,
-                color: theme.custom.classroomSlate900,
-              }}
-            >
-              Incidents by severity
-            </Typography>
-          </Box>
-          <Typography
-            variant="caption"
-            sx={{
-              fontFamily: '"JetBrains Mono", monospace',
-              color: theme.custom.classroomSlate500,
-            }}
-          >
-            at most 100 per status
-          </Typography>
-        </Stack>
-        {breakdown.isLoading ? (
-          <Box sx={{ display: "grid", placeItems: "center", height: 180 }}>
-            <CircularProgress size={22} sx={{ color: "#E8A65D" }} />
-          </Box>
-        ) : (
-          <SeverityChart counts={breakdown.severity} />
-        )}
-      </Paper>
     </Box>
   );
 }

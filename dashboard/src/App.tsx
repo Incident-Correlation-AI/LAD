@@ -42,10 +42,10 @@ export function App() {
       <Box
         component="main"
         sx={{
-          maxWidth: 1240,
+          maxWidth: 1320,
           mx: "auto",
-          px: { xs: 2, md: 4 },
-          py: { xs: 3, md: 4 },
+          px: { xs: 3, sm: 5, md: 7, lg: 9 },
+          py: { xs: 3.5, md: 5 },
         }}
       >
         <Routes>
